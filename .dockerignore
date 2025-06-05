@@ -24,6 +24,7 @@ npm-debug.log*
 persist/
 .phpunit.result.cache
 public/build/
+public/hot
 public/storage
 resources/vendor/
 results/
