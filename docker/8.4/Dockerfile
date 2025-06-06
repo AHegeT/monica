@@ -16,7 +16,7 @@ WORKDIR /var/www/html
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
 ENV SUPERVISOR_PHP_COMMAND="/usr/bin/php -d variables_order=EGPCS /var/www/html/artisan serve --host=0.0.0.0 --port=80"
-ENV SUPERVISOR_PHP_USER="php"
+ENV SUPERVISOR_PHP_USER="root"
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
@@ -79,9 +79,6 @@ COPY . /var/www/html/
 # RUN chown -R sail:sail /var/www/html
 RUN chown -R php:php /var/www/html
 
-USER php
-
-RUN chmod -R ug+rwx /var/www/html/storage /var/www/html/bootstrap/cache
 
 # RUN mkdir -p /var/www/html/storage/framework/{sessions,views,cache} /var/www/html/storage/logs /var/www/html/bootstrap/cache \
 #     && chown -R sail:sail /var/www/html/storage /var/www/html/bootstrap/cache \
@@ -108,6 +105,9 @@ RUN chmod +x /usr/local/bin/start-container
 # 6. RUN LARAVEL OPTIMIZATIONS
 
 USER php
+
+RUN chmod -R ug+rwx /var/www/html/storage /var/www/html/bootstrap/cache
+
 # Create storage directories AS the php user, who owns the parent directory
 RUN mkdir -p /var/www/html/storage/framework/{sessions,views,cache} /var/www/html/storage/logs /var/www/html/bootstrap/cache
 # Bake the production caches into the image
