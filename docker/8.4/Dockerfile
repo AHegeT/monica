@@ -116,6 +116,7 @@ RUN php artisan config:cache \
     && php artisan view:cache \
     && php artisan event:cache
 
+USER root
 
 EXPOSE 80/tcp
 
