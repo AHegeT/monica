@@ -18,6 +18,11 @@ use App\Http\Controllers\Contacts\CallsController;
 
 Route::get('/', 'Auth\LoginController@showLoginOrRegister')->name('loginRedirect');
 
+// Temporary deployment smoke-test route.
+Route::get('/testing', function () {
+    return response('success');
+})->name('testing');
+
 Auth::routes(['verify' => true]);
 
 // Redirect .well-known urls (https://en.wikipedia.org/wiki/List_of_/.well-known/_services_offered_by_webservers)
