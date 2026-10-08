@@ -25,6 +25,7 @@
           :required="true"
           :maxlength="65535"
           :markdown="true"
+          :formatting="true"
           :textarea-class="'block w-full mb-3'" />
 
         <!-- title -->
@@ -102,9 +103,7 @@
             </span>
           </div>
           <!-- full body -->
-          <div v-else class="p-3 whitespace-pre-line">
-            {{ note.body }}
-          </div>
+          <MarkdownContent v-else :content="note.body_html" class="p-3" />
 
           <!-- details -->
           <div
@@ -151,6 +150,7 @@
               :required="true"
               :maxlength="65535"
               :markdown="true"
+              :formatting="true"
               :textarea-class="'block w-full mb-3'" />
 
             <!-- title -->
@@ -220,6 +220,7 @@ import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import TextArea from '@/Shared/Form/TextArea.vue';
+import MarkdownContent from '@/Shared/MarkdownContent.vue';
 import Errors from '@/Shared/Form/Errors.vue';
 import Avatar from '@/Shared/Avatar.vue';
 import Pagination from '@/Components/Pagination.vue';
@@ -233,6 +234,7 @@ export default {
     PrettySpan,
     TextInput,
     TextArea,
+    MarkdownContent,
     Errors,
     Avatar,
     Pagination,

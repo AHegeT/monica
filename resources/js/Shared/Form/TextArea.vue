@@ -5,7 +5,7 @@ export default {
 </script>
 
 <script setup>
-import { computed, ref, useTemplateRef } from 'vue';
+import { computed, nextTick, ref, useTemplateRef } from 'vue';
 
 const props = defineProps({
   id: {
@@ -52,6 +52,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  formatting: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(['esc-key-pressed', 'update:modelValue']);
@@ -92,6 +96,41 @@ const showMaxLength = () => {
   displayMaxLength.value = true;
 };
 
+const toggleBullets = async () => {
+  const textarea = zone.value;
+  if (!textarea) {
+    return;
+  }
+
+  const value = props.modelValue ?? '';
+  const selectionStart = textarea.selectionStart;
+  const selectionEnd = textarea.selectionEnd;
+  const start = value.lastIndexOf('\n', selectionStart - 1) + 1;
+  const nextLine = value.indexOf('\n', selectionEnd);
+  const end = nextLine === -1 ? value.length : nextLine;
+  const lines = value.slice(start, end).split('\n');
+  const nonEmptyLines = lines.filter((line) => line.trim() !== '');
+  const removeBullets = nonEmptyLines.length > 0 && nonEmptyLines.every((line) => /^\s*[-*+]\s+/.test(line));
+  const formatted =
+    nonEmptyLines.length === 0 && lines.length === 1
+      ? '- '
+      : lines
+          .map((line) => {
+            if (line.trim() === '') {
+              return line;
+            }
+
+            return removeBullets ? line.replace(/^(\s*)[-*+]\s+/, '$1') : line.replace(/^(\s*)/, '$1- ');
+          })
+          .join('\n');
+  const updatedValue = value.slice(0, start) + formatted + value.slice(end);
+
+  emit('update:modelValue', updatedValue);
+  await nextTick();
+  zone.value?.focus();
+  zone.value?.setSelectionRange(start, start + formatted.length);
+};
+
 const focus = () => {
   zone.value.focus();
 };
@@ -115,6 +154,18 @@ defineExpose({
         {{ charactersLeft }}
       </span>
     </label>
+
+    <div v-if="formatting" class="mb-1">
+      <button
+        type="button"
+        class="rounded border border-gray-300 px-2 py-1 text-sm hover:bg-slate-100 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 dark:border-gray-700 dark:hover:bg-slate-800"
+        :aria-label="$t('Bulleted list')"
+        :title="$t('Bulleted list')"
+        @click="toggleBullets">
+        <span aria-hidden="true">•</span>
+        {{ $t('Bulleted list') }}
+      </button>
+    </div>
 
     <div class="relative">
       <textarea

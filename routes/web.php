@@ -158,6 +158,7 @@ Route::get('/', function () {
 
     return Redirect::intended(route('vault.index', absolute: false));
 })->name('home');
+Route::get('/testing', fn () => response('success'))->name('testing');
 Route::post('closeBeta', [LoginController::class, 'closeBeta'])->name('close_beta');
 
 // Redirect .well-known urls (https://en.wikipedia.org/wiki/List_of_/.well-known/_services_offered_by_webservers)

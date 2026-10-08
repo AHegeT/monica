@@ -47,6 +47,7 @@ class ModuleNotesViewHelper
         return [
             'id' => $note->id,
             'body' => $note->body,
+            'body_html' => NoteBodyViewHelper::html($note->body),
             'body_excerpt' => Str::length($note->body) >= 200 ? Str::limit($note->body, 200) : null,
             'show_full_content' => false,
             'title' => $note->title,
