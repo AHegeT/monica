@@ -18,6 +18,8 @@ const form = useForm({
   sort_order: props.data.user_contact_sort_order,
 });
 const searchTerm = ref(props.data.search_term || '');
+const withoutGroup = ref(props.data.without_group || false);
+const withoutFamily = ref(props.data.without_family || false);
 let searchTimeout;
 
 watch(
@@ -26,16 +28,37 @@ watch(
     searchTerm.value = value || '';
   },
 );
+watch(
+  () => props.data.without_group,
+  (value) => {
+    withoutGroup.value = value || false;
+  },
+);
+watch(
+  () => props.data.without_family,
+  (value) => {
+    withoutFamily.value = value || false;
+  },
+);
 
 const filterContacts = () => {
   window.clearTimeout(searchTimeout);
   searchTimeout = window.setTimeout(() => {
-    router.get(
-      props.data.url.contact.index,
-      { search: searchTerm.value || undefined },
-      { preserveState: true, preserveScroll: true, replace: true },
-    );
+    applyFilters();
   }, 300);
+};
+
+const applyFilters = () => {
+  window.clearTimeout(searchTimeout);
+  router.get(
+    props.data.url.contact.index,
+    {
+      search: searchTerm.value || undefined,
+      without_group: withoutGroup.value ? 1 : undefined,
+      without_family: withoutFamily.value ? 1 : undefined,
+    },
+    { preserveState: true, preserveScroll: true, replace: true },
+  );
 };
 
 const update = () => {
@@ -118,6 +141,17 @@ const update = () => {
                 :placeholder="$t('Search contacts by name')"
                 @input="filterContacts" />
             </label>
+
+            <div class="mb-4 flex flex-wrap gap-x-5 gap-y-2 text-sm">
+              <label class="flex items-center gap-2">
+                <input v-model="withoutGroup" type="checkbox" class="rounded border-gray-300" @change="applyFilters" />
+                {{ $t('Without a group') }}
+              </label>
+              <label class="flex items-center gap-2">
+                <input v-model="withoutFamily" type="checkbox" class="rounded border-gray-300" @change="applyFilters" />
+                {{ $t('Without family information') }}
+              </label>
+            </div>
 
             <!-- contact list -->
             <ul

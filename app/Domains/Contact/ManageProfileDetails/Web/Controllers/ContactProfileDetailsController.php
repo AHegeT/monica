@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Contact;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class ContactProfileDetailsController extends Controller
 {
@@ -18,7 +20,56 @@ class ContactProfileDetailsController extends Controller
             'employments' => $contact->employments()->orderByDesc('is_current')->orderByDesc('started_on')->get(),
             'interests' => $contact->profileTags()->where('kind', 'interest')->orderBy('name')->get(),
             'skills' => $contact->profileTags()->where('kind', 'skill')->orderBy('name')->get(),
+            'personality' => $contact->personalityProfile,
         ]]);
+    }
+
+    public function updatePersonality(Request $request, string $vaultId, string $contactId): JsonResponse
+    {
+        $contact = $this->contact($vaultId, $contactId);
+        $workingGeniuses = ['Wonder', 'Invention', 'Discernment', 'Galvanizing', 'Enablement', 'Tenacity'];
+        $myersBriggsTypes = [
+            'ISTJ', 'ISFJ', 'INFJ', 'INTJ', 'ISTP', 'ISFP', 'INFP', 'INTP',
+            'ESTP', 'ESFP', 'ENFP', 'ENTP', 'ESTJ', 'ESFJ', 'ENFJ', 'ENTJ',
+        ];
+
+        $validator = Validator::make($request->all(), [
+            'myers_briggs_type' => ['nullable', 'string', Rule::in($myersBriggsTypes)],
+            'enneagram_type' => ['nullable', 'integer', 'between:1,9'],
+            'working_genius_strengths' => ['nullable', 'array', 'max:3'],
+            'working_genius_strengths.*' => ['required', 'string', 'distinct', Rule::in($workingGeniuses)],
+            'working_genius_weaknesses' => ['nullable', 'array', 'max:3'],
+            'working_genius_weaknesses.*' => ['required', 'string', 'distinct', Rule::in($workingGeniuses)],
+        ]);
+
+        $validator->after(function ($validator) use ($request): void {
+            $strengths = $request->input('working_genius_strengths') ?? [];
+            $weaknesses = $request->input('working_genius_weaknesses') ?? [];
+
+            if (! is_array($strengths) || ! is_array($weaknesses)) {
+                return;
+            }
+
+            if (! in_array(count($strengths), [0, 3], true) || ! in_array(count($weaknesses), [0, 3], true) || count($strengths) !== count($weaknesses)) {
+                $validator->errors()->add('working_genius_strengths', 'Choose exactly three strengths and three weaknesses, or clear both lists.');
+
+                return;
+            }
+
+            if (array_intersect($strengths, $weaknesses) !== []) {
+                $validator->errors()->add('working_genius_weaknesses', 'A Working Genius cannot be both a strength and a weakness.');
+            }
+        });
+
+        $data = $validator->validate();
+        $profile = $contact->personalityProfile()->updateOrCreate([], [
+            'myers_briggs_type' => $data['myers_briggs_type'] ?? null,
+            'enneagram_type' => $data['enneagram_type'] ?? null,
+            'working_genius_strengths' => empty($data['working_genius_strengths'] ?? []) ? null : $data['working_genius_strengths'],
+            'working_genius_weaknesses' => empty($data['working_genius_weaknesses'] ?? []) ? null : $data['working_genius_weaknesses'],
+        ]);
+
+        return response()->json(['data' => $profile->fresh()], 200);
     }
 
     public function storeEmployment(Request $request, string $vaultId, string $contactId): JsonResponse

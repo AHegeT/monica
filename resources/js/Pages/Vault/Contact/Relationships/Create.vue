@@ -220,7 +220,6 @@
                       :display-most-consulted-contacts="false"
                       :add-multiple-contacts="false"
                       :auto-open="true"
-                      :select-on-click="true"
                       :required="true"
                       :class="'flex-1 border-gray-200 dark:border-gray-700'" />
                   </div>

@@ -14,6 +14,7 @@ use App\Domains\Vault\ManageVault\Web\ViewHelpers\VaultIndexViewHelper;
 use App\Helpers\PaginatorHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Contact;
+use App\Models\RelationshipGroupType;
 use App\Models\User;
 use App\Models\Vault;
 use Illuminate\Http\Request;
@@ -35,6 +36,28 @@ class ContactController extends Controller
             $contacts->nameMatches($searchTerm);
         }
 
+        $withoutGroup = $request->boolean('without_group');
+        $withoutFamily = $request->boolean('without_family');
+
+        if ($withoutGroup) {
+            $contacts->whereDoesntHave('groups');
+        }
+
+        if ($withoutFamily) {
+            $contacts->whereNotExists(function ($query) use ($vault): void {
+                $query->selectRaw('1')
+                    ->from('relationships')
+                    ->join('relationship_types', 'relationships.relationship_type_id', '=', 'relationship_types.id')
+                    ->join('relationship_group_types', 'relationship_types.relationship_group_type_id', '=', 'relationship_group_types.id')
+                    ->where('relationship_group_types.account_id', $vault->account_id)
+                    ->where('relationship_group_types.type', RelationshipGroupType::TYPE_FAMILY)
+                    ->where(function ($query): void {
+                        $query->whereColumn('relationships.contact_id', 'contacts.id')
+                            ->orWhereColumn('relationships.related_contact_id', 'contacts.id');
+                    });
+            });
+        }
+
         $column_to_order = preg_replace('/^%([a-z_]+)%.*$/', '$1', Auth::user()->name_order);
 
         switch (Auth::user()->contact_sort_order) {
@@ -52,7 +75,7 @@ class ContactController extends Controller
 
         return Inertia::render('Vault/Contact/Index', [
             'layoutData' => VaultIndexViewHelper::layoutData($vault),
-            'data' => ContactIndexViewHelper::data($contacts, $vault, null, Auth::user(), $searchTerm),
+            'data' => ContactIndexViewHelper::data($contacts, $vault, null, Auth::user(), $searchTerm, $withoutGroup, $withoutFamily),
             'paginator' => PaginatorHelper::getData($contacts),
         ]);
     }

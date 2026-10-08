@@ -348,6 +348,7 @@ Route::middleware([
                     Route::delete('employments/{employmentId}', [ContactProfileDetailsController::class, 'destroyEmployment'])->name('contact.employments.destroy');
                     Route::post('profileTags', [ContactProfileDetailsController::class, 'storeTag'])->name('contact.profile_tags.store');
                     Route::delete('profileTags/{tagId}', [ContactProfileDetailsController::class, 'destroyTag'])->name('contact.profile_tags.destroy');
+                    Route::put('personality', [ContactProfileDetailsController::class, 'updatePersonality'])->name('contact.personality.update');
                     Route::put('groups/{groupId}/active', [ContactProfileDetailsController::class, 'toggleGroupActive'])->name('contact.groups.active.update');
 
                     // religion
@@ -607,6 +608,8 @@ Route::middleware([
 
                 // relationship group types
                 Route::get('relationships', [PersonalizeRelationshipController::class, 'index'])->name('relationship.index');
+                Route::get('relationships/legacy', [PersonalizeRelationshipController::class, 'legacyRelationships'])->name('relationship.legacy.index');
+                Route::put('relationships/legacy/{relationshipId}', [PersonalizeRelationshipController::class, 'updateLegacyRelationship'])->name('relationship.legacy.update');
                 Route::post('relationships', [PersonalizeRelationshipController::class, 'store'])->name('relationship.grouptype.store');
                 Route::put('relationships/{groupType}', [PersonalizeRelationshipController::class, 'update'])->name('relationship.grouptype.update');
                 Route::delete('relationships/{groupType}', [PersonalizeRelationshipController::class, 'destroy'])->name('relationship.grouptype.destroy');

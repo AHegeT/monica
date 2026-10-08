@@ -8,7 +8,7 @@ use App\Models\Vault;
 
 class ContactIndexViewHelper
 {
-    public static function data($contacts, Vault $vault, ?int $labelId, User $user, string $searchTerm = ''): array
+    public static function data($contacts, Vault $vault, ?int $labelId, User $user, string $searchTerm = '', bool $withoutGroup = false, bool $withoutFamily = false): array
     {
         $contactCollection = collect();
         foreach ($contacts as $contact) {
@@ -47,6 +47,8 @@ class ContactIndexViewHelper
             'labels' => $labelsCollection,
             'current_label' => $labelId,
             'search_term' => $searchTerm,
+            'without_group' => $withoutGroup,
+            'without_family' => $withoutFamily,
             'user_contact_sort_order' => $user->contact_sort_order,
             'contact_sort_orders' => collect([
                 [

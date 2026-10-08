@@ -59,6 +59,12 @@
             :text="$t('Add a relationship group type')"
             :icon="'plus'"
             @click="showCreateRelationshipGroupTypeModal" />
+          <InertiaLink
+            v-if="data.legacy_relationship_count > 0"
+            :href="data.url.legacy_relationships"
+            class="ms-3 inline-flex items-center rounded-md border border-amber-300 px-3 py-2 text-sm text-amber-800 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-300 dark:hover:bg-amber-950">
+            {{ $t('Review :count old relationships', { count: data.legacy_relationship_count }) }}
+          </InertiaLink>
         </div>
 
         <!-- help text -->

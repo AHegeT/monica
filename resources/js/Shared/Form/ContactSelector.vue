@@ -28,7 +28,6 @@ const props = defineProps({
   displayMostConsultedContacts: Boolean,
   addMultipleContacts: Boolean,
   autoOpen: Boolean,
-  selectOnClick: Boolean,
   excludedIds: {
     type: Array,
     default: () => [],
@@ -108,8 +107,14 @@ const add = (contact) => {
   if (id === -1) {
     localContacts.value.push(contact);
     form.searchTerm = '';
-    addContactMode.value = false;
+    searchResults.value = [];
     nextTick().then(() => emit('update:modelValue', localContacts.value));
+
+    if (props.addMultipleContacts) {
+      nextTick().then(() => searchInput.value?.focus());
+    } else {
+      addContactMode.value = false;
+    }
   }
 };
 
@@ -221,17 +226,9 @@ const search = _.debounce(() => {
             v-for="contact in mostConsultedContacts"
             :key="contact.id"
             class="item-list flex items-center justify-between border-b border-gray-200 px-3 py-2 hover:bg-slate-50 dark:border-gray-700 dark:bg-slate-900 dark:hover:bg-slate-800">
-            <button v-if="selectOnClick" type="button" class="w-full text-start" @click="add(contact)">
+            <button type="button" class="w-full text-start" @click="add(contact)">
               {{ contact.name }}
             </button>
-            <template v-else>
-              {{ contact.name }}
-              <ul class="text-sm">
-                <li class="inline cursor-pointer text-blue-500 hover:underline" @click="add(contact)">
-                  {{ $t('Add') }}
-                </li>
-              </ul>
-            </template>
           </li>
         </ul>
       </div>
@@ -259,17 +256,9 @@ const search = _.debounce(() => {
             v-for="contact in searchResults"
             :key="contact.id"
             class="item-list flex items-center justify-between border-b border-gray-200 px-3 py-2 hover:bg-slate-50 dark:border-gray-700 dark:bg-slate-900 dark:hover:bg-slate-800">
-            <button v-if="selectOnClick" type="button" class="w-full text-start" @click="add(contact)">
+            <button type="button" class="w-full text-start" @click="add(contact)">
               {{ contact.name }}
             </button>
-            <template v-else>
-              {{ contact.name }}
-              <ul class="text-sm">
-                <li class="inline cursor-pointer text-blue-500 hover:underline" @click="add(contact)">
-                  {{ $t('Add') }}
-                </li>
-              </ul>
-            </template>
           </li>
         </ul>
       </div>

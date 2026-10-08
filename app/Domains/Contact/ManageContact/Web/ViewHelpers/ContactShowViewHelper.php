@@ -232,9 +232,11 @@ class ContactShowViewHelper
             'interests' => $contact->profileTags()->where('kind', 'interest')->orderBy('name')->get(),
             'skills' => $contact->profileTags()->where('kind', 'skill')->orderBy('name')->get(),
             'groups' => ModuleGroupsViewHelper::data($contact),
+            'personality' => $contact->personalityProfile,
             'url' => [
                 'employments' => route('contact.employments.store', ['vault' => $contact->vault_id, 'contact' => $contact->id]),
                 'tags' => route('contact.profile_tags.store', ['vault' => $contact->vault_id, 'contact' => $contact->id]),
+                'personality' => route('contact.personality.update', ['vault' => $contact->vault_id, 'contact' => $contact->id]),
             ],
         ];
     }
@@ -247,7 +249,20 @@ class ContactShowViewHelper
         $modules = $page->modules()->orderBy('position', 'asc')->get();
 
         $modulesCollection = collect();
+        $hasFeed = $modules->contains(fn (Module $module): bool => $module->type === Module::TYPE_FEED);
+        $hasNotes = $modules->contains(fn (Module $module): bool => $module->type === Module::TYPE_NOTES);
+        $overviewNotesAdded = false;
+
         foreach ($modules as $module) {
+            if ($hasFeed && ! $hasNotes && ! $overviewNotesAdded && $module->type === Module::TYPE_FEED) {
+                $modulesCollection->push([
+                    'id' => 'overview-notes',
+                    'type' => Module::TYPE_NOTES,
+                    'data' => ModuleNotesViewHelper::data($contact, $user),
+                ]);
+                $overviewNotesAdded = true;
+            }
+
             $data = [];
             if ($module->type == Module::TYPE_NOTES) {
                 $data = ModuleNotesViewHelper::data($contact, $user);
