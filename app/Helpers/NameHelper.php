@@ -19,6 +19,14 @@ class NameHelper
     public static function formatContactName(User $user, Contact $contact): string
     {
         $nameOrder = $user->name_order;
+
+        // Keep the nickname in the position of the first name, even when the
+        // saved name order also includes it in parentheses at the end.
+        if (filled($contact->nickname) && str_contains($nameOrder, '%first_name%')) {
+            $nameOrder = preg_replace('/\s*\(%nickname%\)|\s*%nickname%/', '', $nameOrder) ?? $nameOrder;
+            $nameOrder = str_replace('%first_name%', '%nickname% (%first_name%)', $nameOrder);
+        }
+
         if (str_contains($nameOrder, '%last_name%') && ! str_contains($nameOrder, '%second_last_name%')) {
             $nameOrder = str_replace('%last_name%', '%last_name% %second_last_name%', $nameOrder);
         }

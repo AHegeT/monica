@@ -111,6 +111,7 @@ class ModuleRelationshipViewHelper
         return [
             'id' => $contact->id,
             'name' => $contact->name,
+            'is_private_person' => $contact->is_private_person,
             'avatar' => $contact->avatar,
             'age' => $contact->age,
             'url' => [

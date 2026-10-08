@@ -38,6 +38,12 @@
                   {{ relationshipType.contact.name }}
                 </InertiaLink>
                 <span v-else>{{ relationshipType.contact.name }}</span>
+                <LockKeyhole
+                  v-if="relationshipType.contact.is_private_person"
+                  class="ms-2 h-3.5 w-3.5 text-gray-400"
+                  role="img"
+                  :aria-label="$t('Relationship only')"
+                  :title="$t('This is a relationship-only person')" />
 
                 <!-- age -->
                 <span v-if="relationshipType.contact.age" class="ms-2 text-xs text-gray-400"
@@ -86,13 +92,14 @@
 import { Link } from '@inertiajs/vue3';
 import PrettyLink from '@/Shared/Form/PrettyLink.vue';
 import Avatar from '@/Shared/Avatar.vue';
-import { UsersRound } from 'lucide-vue-next';
+import { LockKeyhole, UsersRound } from 'lucide-vue-next';
 
 export default {
   components: {
     InertiaLink: Link,
     PrettyLink,
     Avatar,
+    LockKeyhole,
     UsersRound,
   },
 

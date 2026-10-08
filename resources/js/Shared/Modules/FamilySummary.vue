@@ -1,5 +1,6 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
+import { LockKeyhole } from 'lucide-vue-next';
 
 defineProps({
   data: Object,
@@ -25,6 +26,12 @@ defineProps({
             {{ relationship.contact.name }}
           </Link>
           <span v-else>{{ relationship.contact.name }}</span>
+          <LockKeyhole
+            v-if="relationship.contact.is_private_person"
+            class="ms-1 inline h-3.5 w-3.5 text-gray-400"
+            role="img"
+            :aria-label="$t('Relationship only')"
+            :title="$t('This is a relationship-only person')" />
 
           <!-- age -->
           <span v-if="relationship.contact.age" class="ms-2 text-xs text-gray-400"
@@ -47,6 +54,12 @@ defineProps({
             {{ relationship.contact.name }}
           </Link>
           <span v-else>{{ relationship.contact.name }}</span>
+          <LockKeyhole
+            v-if="relationship.contact.is_private_person"
+            class="ms-1 inline h-3.5 w-3.5 text-gray-400"
+            role="img"
+            :aria-label="$t('Relationship only')"
+            :title="$t('This is a relationship-only person')" />
 
           <!-- age -->
           <span v-if="relationship.contact.age" class="ms-2 text-xs text-gray-400"

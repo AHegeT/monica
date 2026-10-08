@@ -488,12 +488,16 @@ class Contact extends VCardResource
                 }
 
                 $firstName = Arr::get($attributes, 'first_name');
+                $nickname = Arr::get($attributes, 'nickname');
                 $lastName = Arr::get($attributes, 'last_name');
                 $secondLastName = Arr::get($attributes, 'second_last_name');
                 $lastNames = trim(implode(' ', array_filter([$lastName, $secondLastName])));
-                $separator = $firstName && $lastNames ? ' ' : '';
+                $givenName = filled($nickname)
+                    ? trim($nickname.(filled($firstName) ? ' ('.$firstName.')' : ''))
+                    : $firstName;
+                $separator = $givenName && $lastNames ? ' ' : '';
 
-                $name = trim($firstName.$separator.$lastNames);
+                $name = trim($givenName.$separator.$lastNames);
 
                 return $name === '' ? trans('Unknown name') : $name;
             }
