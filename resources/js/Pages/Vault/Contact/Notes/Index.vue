@@ -24,8 +24,8 @@
               </svg>
             </li>
             <li class="me-2 inline">
-              <InertiaLink :href="data.url.contact" class="text-blue-500 hover:underline">
-                {{ $t('Profile of :name', { name: data.contact.name }) }}
+              <InertiaLink :href="data.url.back || data.url.contact" class="text-blue-500 hover:underline">
+                {{ data.url.back ? $t('Back to contact') : $t('Profile of :name', { name: data.contact.name }) }}
               </InertiaLink>
             </li>
             <li class="relative me-2 inline">

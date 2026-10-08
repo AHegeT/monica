@@ -34,6 +34,8 @@ class CreateContact extends BaseService implements ServiceInterface
             'pronoun_id' => 'nullable|integer|exists:pronouns,id',
             'template_id' => 'nullable|integer|exists:templates,id',
             'listed' => 'required|boolean',
+            'is_private_person' => 'sometimes|boolean',
+            'private_label' => 'nullable|string|max:255',
         ];
     }
 
@@ -108,6 +110,8 @@ class CreateContact extends BaseService implements ServiceInterface
             'template_id' => $templateId,
             'last_updated_at' => Carbon::now(),
             'listed' => $this->valueOrTrue($this->data, 'listed'),
+            'is_private_person' => $this->valueOrFalse($this->data, 'is_private_person'),
+            'private_label' => $this->valueOrNull($this->data, 'private_label'),
         ]);
         if (($id = $this->valueOrNull($this->data, 'id')) !== null) {
             $this->contact->id = $id;

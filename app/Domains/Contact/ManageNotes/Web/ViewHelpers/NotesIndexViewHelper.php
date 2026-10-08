@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 
 class NotesIndexViewHelper
 {
-    public static function data(Contact $contact, $notes, User $user): array
+    public static function data(Contact $contact, $notes, User $user, ?string $returnUrl = null): array
     {
         $notesCollection = $notes->map(function ($note) use ($contact, $user) {
             return self::dto($contact, $note, $user);
@@ -40,6 +40,7 @@ class NotesIndexViewHelper
                     'vault' => $contact->vault_id,
                     'contact' => $contact->id,
                 ]),
+                'back' => $returnUrl,
             ],
         ];
     }

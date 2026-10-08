@@ -58,8 +58,12 @@ class ModuleRelationshipViewHelper
                         continue;
                     }
 
+                    if (! $relatedContact->listed && ! $relatedContact->is_private_person) {
+                        continue;
+                    }
+
                     $relationshipTypesCollection->push([
-                        'contact' => self::getContact($relatedContact),
+                        'contact' => self::getContact($relatedContact, $contact),
                         'relationship_type' => [
                             'id' => $relationshipType->id,
                             'name' => $relationshipName,
@@ -102,7 +106,7 @@ class ModuleRelationshipViewHelper
         ];
     }
 
-    private static function getContact(Contact $contact): array
+    private static function getContact(Contact $contact, Contact $sourceContact): array
     {
         return [
             'id' => $contact->id,
@@ -110,10 +114,14 @@ class ModuleRelationshipViewHelper
             'avatar' => $contact->avatar,
             'age' => $contact->age,
             'url' => [
-                'show' => $contact->listed ? route('contact.show', [
+                'show' => $contact->is_private_person ? route('contact.note.index', [
                     'vault' => $contact->vault->id,
                     'contact' => $contact->id,
-                ]) : null,
+                    'from' => $sourceContact->id,
+                ]) : ($contact->listed ? route('contact.show', [
+                    'vault' => $contact->vault->id,
+                    'contact' => $contact->id,
+                ]) : null),
             ],
         ];
     }

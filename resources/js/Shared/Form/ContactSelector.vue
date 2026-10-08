@@ -251,7 +251,8 @@ const search = _.debounce(() => {
       <div v-if="searchResults.length !== 0 && form.searchTerm.length !== 0" class="mb-3">
         <errors :errors="form.errors" />
 
-        <ul class="mb-4 rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+        <ul
+          class="mb-4 max-h-72 overflow-y-auto rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
           <li
             v-for="contact in searchResults"
             :key="contact.id"

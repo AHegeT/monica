@@ -32,10 +32,12 @@ class ContactProfileDetailsController extends Controller
             'ISTJ', 'ISFJ', 'INFJ', 'INTJ', 'ISTP', 'ISFP', 'INFP', 'INTP',
             'ESTP', 'ESFP', 'ENFP', 'ENTP', 'ESTJ', 'ESFJ', 'ENFJ', 'ENTJ',
         ];
+        $zodiacSigns = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
 
         $validator = Validator::make($request->all(), [
             'myers_briggs_type' => ['nullable', 'string', Rule::in($myersBriggsTypes)],
             'enneagram_type' => ['nullable', 'integer', 'between:1,9'],
+            'zodiac_sign' => ['nullable', 'string', Rule::in($zodiacSigns)],
             'working_genius_strengths' => ['nullable', 'array', 'max:3'],
             'working_genius_strengths.*' => ['required', 'string', 'distinct', Rule::in($workingGeniuses)],
             'working_genius_weaknesses' => ['nullable', 'array', 'max:3'],
@@ -59,6 +61,7 @@ class ContactProfileDetailsController extends Controller
         $profile = $contact->personalityProfile()->updateOrCreate([], [
             'myers_briggs_type' => $data['myers_briggs_type'] ?? null,
             'enneagram_type' => $data['enneagram_type'] ?? null,
+            'zodiac_sign' => $data['zodiac_sign'] ?? null,
             'working_genius_strengths' => empty($data['working_genius_strengths'] ?? []) ? null : $data['working_genius_strengths'],
             'working_genius_weaknesses' => empty($data['working_genius_weaknesses'] ?? []) ? null : $data['working_genius_weaknesses'],
         ]);

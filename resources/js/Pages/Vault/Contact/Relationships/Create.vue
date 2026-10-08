@@ -48,7 +48,7 @@
       <div class="mx-auto max-w-lg px-2 py-2 sm:px-6 sm:py-6 lg:px-8">
         <form
           class="mb-6 rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"
-          @submit.prevent="submit()">
+          @submit.prevent="submit(false)">
           <!-- header -->
           <div class="section-head border-b border-gray-200 bg-blue-50 p-5 dark:border-gray-700 dark:bg-blue-900">
             <h1 class="text-center text-2xl font-medium">{{ $t('Add a relationship') }}</h1>
@@ -56,6 +56,9 @@
 
           <div class="border-b border-gray-200 p-5 dark:border-gray-700">
             <errors :errors="form.errors" />
+            <p v-if="savedMessage" class="mb-3 text-sm text-green-700 dark:text-green-400" role="status">
+              {{ savedMessage }}
+            </p>
 
             <!-- relationship type -->
             <label for="types" class="mb-2 block text-sm"> {{ $t('Select a relationship type') }} </label>
@@ -127,6 +130,23 @@
                       class="ms-3 block cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-300">
                       {{ $t('I don’t know the name') }}
                     </label>
+                  </div>
+                  <div v-if="form.choice === 'unknown'" class="mb-4 ps-6">
+                    <text-input
+                      :id="'private_label'"
+                      v-model="form.private_label"
+                      :class="'mb-2'"
+                      :input-class="'block w-full'"
+                      :required="false"
+                      :maxlength="255"
+                      :label="$t('Optional label')" />
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                      {{
+                        $t(
+                          'This person stays out of contact search and can be opened from this relationship to add notes.',
+                        )
+                      }}
+                    </p>
                   </div>
 
                   <!-- I know the contact's name -->
@@ -317,7 +337,7 @@
             </div>
 
             <!-- create a contact entry -->
-            <div v-if="form.choice !== 'contact'" class="border-b border-gray-200 p-5 dark:border-gray-700">
+            <div v-if="form.choice === 'name'" class="border-b border-gray-200 p-5 dark:border-gray-700">
               <div class="relative flex items-start">
                 <input
                   id="create-contact"
@@ -345,12 +365,16 @@
           <!-- actions -->
           <div class="flex justify-between p-5">
             <pretty-link :href="data.url.back" :text="$t('Cancel')" :class="'me-3'" />
-            <pretty-button
-              :href="'data.url.vault.create'"
-              :text="$t('Add')"
-              :state="loadingState"
-              :icon="'check'"
-              :class="'save'" />
+            <div class="flex flex-wrap justify-end gap-2">
+              <button
+                type="button"
+                class="rounded border border-gray-400 px-3 py-2 text-sm hover:bg-gray-100 disabled:opacity-50 dark:border-gray-600 dark:hover:bg-gray-800"
+                :disabled="loadingState === 'loading'"
+                @click="submit(true)">
+                {{ $t('Add another relationship') }}
+              </button>
+              <pretty-button :text="$t('Add')" :state="loadingState" :icon="'check'" :class="'save'" />
+            </div>
           </div>
         </form>
       </div>
@@ -396,6 +420,7 @@ export default {
   data() {
     return {
       loadingState: '',
+      savedMessage: '',
       showRelationshipTypeDetails: false,
       showMoreContactOptions: false,
       showContactName: false,
@@ -409,12 +434,14 @@ export default {
       fromRelationship: '',
       toRelationship: '',
       form: {
-        choice: 'unknown',
+        choice: 'contact',
         create_contact_entry: false,
         relationship_type_id: 0,
         closeness_level: '',
         base_contact_id: 0,
         other_contact_id: [],
+        first_name: '',
+        private_label: '',
         last_name: '',
         second_last_name: '',
         middle_name: '',
@@ -461,6 +488,7 @@ export default {
   methods: {
     displayContactNameField() {
       this.form.choice = 'name';
+      this.form.private_label = '';
       this.showContactName = true;
       this.showMoreContactOptions = true;
 
@@ -472,6 +500,7 @@ export default {
     hideContactNameField() {
       this.form.choice = 'unknown';
       this.form.first_name = '';
+      this.form.private_label = '';
       this.form.last_name = '';
       this.form.middle_name = '';
       this.form.nickname = '';
@@ -483,7 +512,7 @@ export default {
     },
 
     displayContactSelector() {
-      this.form.choice = 'choice';
+      this.form.choice = 'contact';
       this.showContactName = false;
       this.showMoreContactOptions = false;
     },
@@ -531,12 +560,42 @@ export default {
       this.showRelationshipTypeDetails = true;
     },
 
-    submit() {
+    submit(addAnother = false) {
       this.loadingState = 'loading';
+      this.savedMessage = '';
 
       axios
         .post(this.data.url.store, this.form)
         .then((response) => {
+          if (addAnother) {
+            this.form.choice = 'contact';
+            this.form.create_contact_entry = false;
+            this.form.other_contact_id = [];
+            this.form.first_name = '';
+            this.form.private_label = '';
+            this.form.last_name = '';
+            this.form.second_last_name = '';
+            this.form.middle_name = '';
+            this.form.nickname = '';
+            this.form.maiden_name = '';
+            this.form.gender_id = '';
+            this.form.pronoun_id = '';
+            this.form.closeness_level = '';
+            this.form.errors = [];
+            this.showContactName = false;
+            this.showMoreContactOptions = false;
+            this.showLastNameField = false;
+            this.showSecondLastNameField = false;
+            this.showMiddleNameField = false;
+            this.showNicknameField = false;
+            this.showMaidenNameField = false;
+            this.showGenderField = false;
+            this.showPronounField = false;
+            this.savedMessage = this.$t('The relationship has been added.');
+            this.loadingState = '';
+            return;
+          }
+
           localStorage.success = this.$t('The relationship has been added');
           this.$inertia.visit(response.data.data);
         })

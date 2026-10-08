@@ -52,6 +52,9 @@ class ContactRelationshipsController extends Controller
                 'author_id' => Auth::id(),
                 'vault_id' => $vaultId,
                 'first_name' => $request->input('first_name'),
+                'is_private_person' => $request->input('choice') === 'unknown'
+                    || ($request->input('choice') === 'name' && ! $request->boolean('create_contact_entry')),
+                'private_label' => $request->input('private_label'),
                 'last_name' => $request->input('last_name'),
                 'second_last_name' => $request->input('second_last_name'),
                 'middle_name' => $request->input('middle_name'),
@@ -59,7 +62,7 @@ class ContactRelationshipsController extends Controller
                 'maiden_name' => $request->input('maiden_name'),
                 'gender_id' => $request->input('gender_id'),
                 'pronoun_id' => $request->input('pronoun_id'),
-                'listed' => $request->input('create_contact_entry'),
+                'listed' => $request->input('choice') === 'unknown' ? false : $request->input('create_contact_entry'),
                 'template_id' => null,
             ]);
             $otherContactId = $otherContact->id;

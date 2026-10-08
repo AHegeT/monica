@@ -96,6 +96,17 @@
               </option>
             </select>
           </label>
+
+          <label class="block">
+            <span class="mb-1 block font-medium">{{ $t('Zodiac sign') }}</span>
+            <select
+              v-model="personality.zodiac_sign"
+              class="w-full rounded border-gray-300 text-sm dark:bg-gray-800"
+              @change="savePersonality">
+              <option value="">{{ $t('Not set') }}</option>
+              <option v-for="sign in zodiacSigns" :key="sign" :value="sign">{{ $t(sign) }}</option>
+            </select>
+          </label>
         </div>
 
         <div>
@@ -203,6 +214,7 @@ const profile = props.data.personality || {};
 const personality = reactive({
   myers_briggs_type: profile.myers_briggs_type || '',
   enneagram_type: profile.enneagram_type || '',
+  zodiac_sign: profile.zodiac_sign || '',
   working_genius_strengths: profile.working_genius_strengths || [],
   working_genius_weaknesses: profile.working_genius_weaknesses || [],
 });
@@ -239,6 +251,20 @@ const enneagramTypes = [
   { number: 9, name: 'Peacemaker' },
 ];
 const workingGeniusTypes = ['Wonder', 'Invention', 'Discernment', 'Galvanizing', 'Enablement', 'Tenacity'];
+const zodiacSigns = [
+  'Aries',
+  'Taurus',
+  'Gemini',
+  'Cancer',
+  'Leo',
+  'Virgo',
+  'Libra',
+  'Scorpio',
+  'Sagittarius',
+  'Capricorn',
+  'Aquarius',
+  'Pisces',
+];
 let personalitySaveQueued = false;
 let personalityChangeVersion = 0;
 
@@ -311,6 +337,7 @@ const savePersonality = async () => {
       await axios.put(props.data.url.personality, {
         myers_briggs_type: personality.myers_briggs_type || null,
         enneagram_type: personality.enneagram_type || null,
+        zodiac_sign: personality.zodiac_sign || null,
         working_genius_strengths: personality.working_genius_strengths,
         working_genius_weaknesses: personality.working_genius_weaknesses,
       });

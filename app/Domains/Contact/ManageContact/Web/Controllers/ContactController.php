@@ -84,6 +84,7 @@ class ContactController extends Controller
     {
         $contacts = $vault->contacts()
             ->where('listed', false)
+            ->where('is_private_person', false)
             ->orderBy('last_updated_at', 'desc')
             ->paginate(25);
 

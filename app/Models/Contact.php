@@ -58,6 +58,8 @@ class Contact extends VCardResource
         'company_id',
         'job_position',
         'listed',
+        'is_private_person',
+        'private_label',
         'file_id',
         'religion_id',
         'vcard',
@@ -77,6 +79,7 @@ class Contact extends VCardResource
         'vault_id' => 'string',
         'can_be_deleted' => 'boolean',
         'listed' => 'boolean',
+        'is_private_person' => 'boolean',
         'show_quick_facts' => 'boolean',
         'last_updated_at' => 'datetime',
     ];
@@ -475,6 +478,11 @@ class Contact extends VCardResource
     {
         return Attribute::make(
             get: function ($value, $attributes) {
+                $privateLabel = Arr::get($attributes, 'private_label');
+                if ((bool) Arr::get($attributes, 'is_private_person') && filled($privateLabel)) {
+                    return $privateLabel;
+                }
+
                 if (Auth::check()) {
                     return NameHelper::formatContactName(Auth::user(), $this);
                 }
@@ -485,7 +493,9 @@ class Contact extends VCardResource
                 $lastNames = trim(implode(' ', array_filter([$lastName, $secondLastName])));
                 $separator = $firstName && $lastNames ? ' ' : '';
 
-                return $firstName.$separator.$lastNames;
+                $name = trim($firstName.$separator.$lastNames);
+
+                return $name === '' ? trans('Unknown name') : $name;
             }
         );
     }

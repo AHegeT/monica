@@ -14,6 +14,7 @@ class ContactPersonalityProfile extends Model
         'contact_id',
         'myers_briggs_type',
         'enneagram_type',
+        'zodiac_sign',
         'working_genius_strengths',
         'working_genius_weaknesses',
     ];

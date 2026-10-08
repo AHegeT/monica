@@ -17,7 +17,6 @@ class VaultContactSearchViewHelper
             ->nameMatches($term)
             ->orderBy('first_name')
             ->orderBy('last_name')
-            ->take(5)
             ->get();
 
         return $contacts->map(function (Contact $contact): array {
