@@ -38,12 +38,12 @@
                   {{ relationshipType.contact.name }}
                 </InertiaLink>
                 <span v-else>{{ relationshipType.contact.name }}</span>
-                <LockKeyhole
-                  v-if="relationshipType.contact.is_private_person"
+                <ContactRound
+                  v-if="!relationshipType.contact.is_private_person"
                   class="ms-2 h-3.5 w-3.5 text-gray-400"
                   role="img"
-                  :aria-label="$t('Relationship only')"
-                  :title="$t('This is a relationship-only person')" />
+                  :aria-label="$t('Full contact')"
+                  :title="$t('Full contact')" />
 
                 <!-- age -->
                 <span v-if="relationshipType.contact.age" class="ms-2 text-xs text-gray-400"
@@ -53,17 +53,58 @@
 
               <div class="flex flex-wrap items-center gap-2">
                 <span class="text-gray-400">{{ relationshipType.relationship_type.name }}</span>
-                <select
-                  :value="relationshipType.closeness_level ?? ''"
-                  :aria-label="$t('Closeness')"
-                  :disabled="!canEdit"
-                  class="rounded border-gray-300 py-1 text-xs dark:border-gray-700 dark:bg-gray-800"
-                  @change="updateCloseness(relationshipType, $event.target.value)">
-                  <option value="">{{ $t('Not set') }}</option>
-                  <option value="1">1 · {{ $t('Acquaintance') }}</option>
-                  <option value="2">2 · {{ $t('Friendly') }}</option>
-                  <option value="3">3 · {{ $t('Very close (BFF)') }}</option>
-                </select>
+                <div v-if="relationshipType.closeness_level || canEdit" class="relative" data-closeness-control>
+                  <button
+                    v-if="canEdit"
+                    type="button"
+                    class="flex items-center gap-0.5 rounded px-1.5 py-1 text-gray-400 transition hover:bg-slate-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:hover:bg-slate-800 dark:hover:text-gray-300"
+                    :aria-label="closenessLabel(relationshipType.closeness_level)"
+                    :title="closenessLabel(relationshipType.closeness_level)"
+                    :aria-expanded="editingClosenessUrl === relationshipType.url.update_closeness"
+                    @click="toggleClosenessMenu(relationshipType)">
+                    <span
+                      v-for="dot in 3"
+                      :key="dot"
+                      class="h-1.5 w-1.5 rounded-full"
+                      :class="
+                        dot <= (relationshipType.closeness_level || 0)
+                          ? 'bg-gray-500 dark:bg-gray-300'
+                          : 'bg-gray-200 dark:bg-gray-700'
+                      " />
+                  </button>
+                  <span
+                    v-else
+                    class="inline-flex items-center gap-0.5 px-1.5 py-1 text-gray-400"
+                    :aria-label="closenessLabel(relationshipType.closeness_level)"
+                    :title="closenessLabel(relationshipType.closeness_level)">
+                    <span
+                      v-for="dot in 3"
+                      :key="dot"
+                      class="h-1.5 w-1.5 rounded-full"
+                      :class="
+                        dot <= relationshipType.closeness_level
+                          ? 'bg-gray-500 dark:bg-gray-300'
+                          : 'bg-gray-200 dark:bg-gray-700'
+                      " />
+                  </span>
+                  <div
+                    v-if="editingClosenessUrl === relationshipType.url.update_closeness"
+                    class="absolute left-0 top-full z-20 mt-1 min-w-40 rounded-md border border-gray-200 bg-white p-1 shadow-lg dark:border-gray-700 dark:bg-gray-900">
+                    <button
+                      v-for="option in closenessOptions"
+                      :key="option.value ?? 'unset'"
+                      type="button"
+                      class="block w-full rounded px-3 py-1.5 text-left text-xs hover:bg-slate-100 dark:hover:bg-slate-800"
+                      :class="
+                        relationshipType.closeness_level === option.value
+                          ? 'font-semibold text-blue-600 dark:text-blue-400'
+                          : 'text-gray-700 dark:text-gray-200'
+                      "
+                      @click="updateCloseness(relationshipType, option.value)">
+                      {{ $t(option.label) }}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -92,14 +133,14 @@
 import { Link } from '@inertiajs/vue3';
 import PrettyLink from '@/Shared/Form/PrettyLink.vue';
 import Avatar from '@/Shared/Avatar.vue';
-import { LockKeyhole, UsersRound } from 'lucide-vue-next';
+import { ContactRound, UsersRound } from 'lucide-vue-next';
 
 export default {
   components: {
     InertiaLink: Link,
     PrettyLink,
     Avatar,
-    LockKeyhole,
+    ContactRound,
     UsersRound,
   },
 
@@ -117,6 +158,7 @@ export default {
   data() {
     return {
       localRelationships: [],
+      editingClosenessUrl: null,
     };
   },
 
@@ -124,11 +166,38 @@ export default {
     this.localRelationships = this.data.relationship_group_types;
   },
 
+  mounted() {
+    document.addEventListener('click', this.closeClosenessMenuOnOutsideClick);
+  },
+
+  beforeUnmount() {
+    document.removeEventListener('click', this.closeClosenessMenuOnOutsideClick);
+  },
+
   methods: {
+    closeClosenessMenuOnOutsideClick(event) {
+      if (!event.target.closest('[data-closeness-control]')) {
+        this.editingClosenessUrl = null;
+      }
+    },
+    toggleClosenessMenu(relationship) {
+      this.editingClosenessUrl =
+        this.editingClosenessUrl === relationship.url.update_closeness ? null : relationship.url.update_closeness;
+    },
+    closenessLabel(level) {
+      const labels = {
+        1: 'Acquaintance',
+        2: 'Friendly',
+        3: 'Very close (BFF)',
+      };
+
+      return level ? `${this.$t('Closeness')}: ${this.$t(labels[level])}` : this.$t('Set closeness');
+    },
     updateCloseness(relationship, value) {
-      const closenessLevel = value === '' ? null : Number(value);
+      const closenessLevel = value === null ? null : Number(value);
       const previousLevel = relationship.closeness_level;
       relationship.closeness_level = closenessLevel;
+      this.editingClosenessUrl = null;
 
       axios
         .put(relationship.url.update_closeness, { closeness_level: closenessLevel })
@@ -152,6 +221,17 @@ export default {
             this.form.errors = error.response.data;
           });
       }
+    },
+  },
+
+  computed: {
+    closenessOptions() {
+      return [
+        { value: null, label: 'Clear closeness' },
+        { value: 1, label: '1 · Acquaintance' },
+        { value: 2, label: '2 · Friendly' },
+        { value: 3, label: '3 · Very close (BFF)' },
+      ];
     },
   },
 };
