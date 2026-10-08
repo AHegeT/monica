@@ -160,6 +160,7 @@ Route::get('/', function () {
 
     return Redirect::intended(route('vault.index', absolute: false));
 })->name('home');
+Route::redirect('/dashboard', '/vaults')->name('dashboard');
 Route::get('/testing', fn () => response('success'))->name('testing');
 Route::post('closeBeta', [LoginController::class, 'closeBeta'])->name('close_beta');
 
