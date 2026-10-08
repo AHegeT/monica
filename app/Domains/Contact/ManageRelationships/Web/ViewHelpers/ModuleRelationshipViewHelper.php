@@ -47,10 +47,10 @@ class ModuleRelationshipViewHelper
 
                 foreach ($relations as $relation) {
                     if ($relation->contact_id === $contact->id) {
-                        $relatedContact = Contact::active()->find($relation->related_contact_id);
+                        $relatedContact = Contact::find($relation->related_contact_id);
                         $relationshipName = $relationshipType->name_reverse_relationship;
                     } else {
-                        $relatedContact = Contact::active()->find($relation->contact_id);
+                        $relatedContact = Contact::find($relation->contact_id);
                         $relationshipName = $relationshipType->name;
                     }
 

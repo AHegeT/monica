@@ -10,6 +10,7 @@ use App\Domains\Contact\ManageRelationships\Web\ViewHelpers\ModuleRelationshipVi
 use App\Domains\Vault\ManageVault\Web\ViewHelpers\VaultIndexViewHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Contact;
+use App\Models\Module;
 use App\Models\Vault;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -75,12 +76,24 @@ class ContactRelationshipsController extends Controller
             'other_contact_id' => $request->input('base_contact_id') === $contactId ? $otherContactId : $contactId,
         ]);
 
-        return response()->json([
-            'data' => route('contact.show', [
+        $contact = Contact::with('template')->findOrFail($contactId);
+        $socialPage = $contact->template?->pages()
+            ->whereHas('modules', fn ($query) => $query->where('type', Module::TYPE_RELATIONSHIPS))
+            ->orderBy('position')
+            ->first();
+
+        $destination = $socialPage
+            ? route('contact.page.show', [
                 'vault' => $vaultId,
                 'contact' => $contactId,
-            ]),
-        ], 200);
+                'slug' => $socialPage->slug,
+            ])
+            : route('contact.show', [
+                'vault' => $vaultId,
+                'contact' => $contactId,
+            ]);
+
+        return response()->json(['data' => $destination], 200);
     }
 
     public function update(Request $request, string $vaultId, string $contactId, int $relationshipId)

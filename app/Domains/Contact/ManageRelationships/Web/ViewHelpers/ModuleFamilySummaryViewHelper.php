@@ -65,9 +65,9 @@ class ModuleFamilySummaryViewHelper
 
             foreach ($relations as $relation) {
                 if ($relation->contact_id === $contact->id) {
-                    $relatedContact = Contact::active()->find($relation->related_contact_id);
+                    $relatedContact = Contact::find($relation->related_contact_id);
                 } else {
-                    $relatedContact = Contact::active()->find($relation->contact_id);
+                    $relatedContact = Contact::find($relation->contact_id);
                 }
 
                 if ($relatedContact === null) {
