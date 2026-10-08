@@ -140,10 +140,16 @@ echo "Deployment started. Production storage backup: $backup"
 REMOTE_SCRIPT
 
 echo "Checking $APP_URL/testing and $APP_URL/login"
-if curl --fail --silent --show-error "$APP_URL/testing" >/dev/null && \
-   curl --fail --silent --show-error "$APP_URL/login" >/dev/null; then
-    echo "Deployment verified."
-else
-    echo "The app was updated, but an HTTP check failed. Review the container logs and backup before deciding whether to roll back." >&2
-    exit 1
-fi
+for attempt in $(seq 1 20); do
+    if curl --fail --silent --max-time 5 "$APP_URL/testing" >/dev/null && \
+       curl --fail --silent --max-time 5 "$APP_URL/login" >/dev/null; then
+        echo "Deployment verified."
+        exit 0
+    fi
+    if [[ "$attempt" -lt 20 ]]; then
+        sleep 2
+    fi
+done
+
+echo "The app was updated, but an HTTP check failed after waiting for startup. Review the container logs and backup before deciding whether to roll back." >&2
+exit 1
