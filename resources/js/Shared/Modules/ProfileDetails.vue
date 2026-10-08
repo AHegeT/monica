@@ -76,10 +76,7 @@
             <select
               v-model="personality.myers_briggs_type"
               class="w-full rounded border-gray-300 text-sm dark:bg-gray-800"
-              @change="
-                personalitySaved = false;
-                personalityError = '';
-              ">
+              @change="savePersonality">
               <option value="">{{ $t('Not set') }}</option>
               <option v-for="type in myersBriggsTypes" :key="type.code" :value="type.code">
                 {{ type.code }} - {{ $t(type.name) }}
@@ -92,10 +89,7 @@
             <select
               v-model="personality.enneagram_type"
               class="w-full rounded border-gray-300 text-sm dark:bg-gray-800"
-              @change="
-                personalitySaved = false;
-                personalityError = '';
-              ">
+              @change="savePersonality">
               <option value="">{{ $t('Not set') }}</option>
               <option v-for="type in enneagramTypes" :key="type.number" :value="type.number">
                 {{ $t('Type :number - :name', { number: type.number, name: $t(type.name) }) }}
@@ -181,14 +175,8 @@
           </button>
         </div>
 
-        <div class="flex flex-wrap items-center gap-3">
-          <button
-            class="rounded bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-            type="button"
-            :disabled="personalitySaving || !workingGeniusReady"
-            @click="savePersonality">
-            {{ personalitySaving ? $t('Saving…') : $t('Save personality') }}
-          </button>
+        <div class="flex flex-wrap items-center gap-3" aria-live="polite">
+          <span v-if="personalitySaving" class="text-xs text-gray-600 dark:text-gray-300">{{ $t('Saving…') }}</span>
           <span v-if="personalitySaved" class="text-xs text-green-700 dark:text-green-400">{{
             $t('Personality saved')
           }}</span>
@@ -200,7 +188,7 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref } from 'vue';
+import { reactive, ref } from 'vue';
 import { trans } from 'laravel-vue-i18n';
 import Groups from '@/Shared/Modules/Groups.vue';
 
@@ -251,11 +239,8 @@ const enneagramTypes = [
   { number: 9, name: 'Peacemaker' },
 ];
 const workingGeniusTypes = ['Wonder', 'Invention', 'Discernment', 'Galvanizing', 'Enablement', 'Tenacity'];
-const workingGeniusReady = computed(() => {
-  const strengths = personality.working_genius_strengths.length;
-  const weaknesses = personality.working_genius_weaknesses.length;
-  return (strengths === 0 && weaknesses === 0) || (strengths === 3 && weaknesses === 3);
-});
+let personalitySaveQueued = false;
+let personalityChangeVersion = 0;
 
 const addEmployment = async () => {
   const response = await axios.post(props.data.url.employments, job);
@@ -287,16 +272,14 @@ const selectWorkingGenius = (kind, event) => {
     !personality.working_genius_weaknesses.includes(genius)
   ) {
     personality[list] = [...personality[list], genius];
+    savePersonality();
   }
   event.target.value = '';
-  personalitySaved.value = false;
-  personalityError.value = '';
 };
 const removeWorkingGenius = (kind, genius) => {
   const list = kind === 'strengths' ? 'working_genius_strengths' : 'working_genius_weaknesses';
   personality[list] = personality[list].filter((item) => item !== genius);
-  personalitySaved.value = false;
-  personalityError.value = '';
+  savePersonality();
 };
 const workingGeniusDisabled = (list, genius) => {
   const otherList = list === 'strengths' ? 'working_genius_weaknesses' : 'working_genius_strengths';
@@ -309,34 +292,39 @@ const workingGeniusDisabled = (list, genius) => {
 const clearWorkingGenius = () => {
   personality.working_genius_strengths = [];
   personality.working_genius_weaknesses = [];
-  personalitySaved.value = false;
-  personalityError.value = '';
+  savePersonality();
 };
 const savePersonality = async () => {
-  personalitySaving.value = true;
-  personalityError.value = '';
+  personalityChangeVersion++;
   personalitySaved.value = false;
-  try {
-    const response = await axios.put(props.data.url.personality, {
-      myers_briggs_type: personality.myers_briggs_type || null,
-      enneagram_type: personality.enneagram_type || null,
-      working_genius_strengths: personality.working_genius_strengths,
-      working_genius_weaknesses: personality.working_genius_weaknesses,
-    });
-    const saved = response.data.data;
-    personality.myers_briggs_type = saved.myers_briggs_type || '';
-    personality.enneagram_type = saved.enneagram_type || '';
-    personality.working_genius_strengths = saved.working_genius_strengths || [];
-    personality.working_genius_weaknesses = saved.working_genius_weaknesses || [];
-    personalitySaved.value = true;
-  } catch (error) {
-    const errors = error.response?.data?.errors;
-    personalityError.value = errors
-      ? Object.values(errors).flat().join(' ')
-      : trans('Unable to save personality details.');
-  } finally {
-    personalitySaving.value = false;
+  personalityError.value = '';
+  if (personalitySaving.value) {
+    personalitySaveQueued = true;
+    return;
   }
+
+  personalitySaving.value = true;
+  do {
+    personalitySaveQueued = false;
+    const requestVersion = personalityChangeVersion;
+    try {
+      await axios.put(props.data.url.personality, {
+        myers_briggs_type: personality.myers_briggs_type || null,
+        enneagram_type: personality.enneagram_type || null,
+        working_genius_strengths: personality.working_genius_strengths,
+        working_genius_weaknesses: personality.working_genius_weaknesses,
+      });
+      if (requestVersion === personalityChangeVersion) personalitySaved.value = true;
+    } catch (error) {
+      if (requestVersion === personalityChangeVersion) {
+        const errors = error.response?.data?.errors;
+        personalityError.value = errors
+          ? Object.values(errors).flat().join(' ')
+          : trans('Unable to save personality details.');
+      }
+    }
+  } while (personalitySaveQueued);
+  personalitySaving.value = false;
 };
 const period = (item) => {
   const start = item.started_on ? item.started_on.slice(0, 10) : '';

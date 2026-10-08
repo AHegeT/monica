@@ -43,6 +43,7 @@ class UserPreferencesIndexViewHelper
         $contact = new Contact([
             'first_name' => 'James',
             'last_name' => 'Bond',
+            'second_last_name' => 'Smith',
             'nickname' => '007',
             'middle_name' => 'W.',
             'maiden_name' => 'Muller',

@@ -36,6 +36,7 @@ class ContactEditViewHelper
                 'name' => $contact->name,
                 'first_name' => $contact->first_name,
                 'last_name' => $contact->last_name,
+                'second_last_name' => $contact->second_last_name,
                 'middle_name' => $contact->middle_name,
                 'nickname' => $contact->nickname,
                 'maiden_name' => $contact->maiden_name,

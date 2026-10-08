@@ -75,6 +75,16 @@
               :maxlength="255"
               :label="$t('Last name')" />
 
+            <!-- second last name -->
+            <text-input
+              :id="'second_last_name'"
+              v-model="form.second_last_name"
+              :class="'mb-5'"
+              :input-class="'block w-full'"
+              :required="false"
+              :maxlength="255"
+              :label="$t('Second last name')" />
+
             <!-- middle name -->
             <text-input
               v-if="showMiddleNameField"
@@ -266,6 +276,7 @@ export default {
       form: {
         first_name: '',
         last_name: '',
+        second_last_name: '',
         middle_name: '',
         nickname: '',
         prefix: '',

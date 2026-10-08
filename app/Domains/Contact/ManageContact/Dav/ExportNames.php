@@ -33,7 +33,7 @@ class ExportNames extends Exporter implements ExportVCardResource
 
         // https://datatracker.ietf.org/doc/html/rfc6350#section-6.2.2
         $vcard->add('N', [
-            $this->escape($resource->last_name),
+            $this->escape(trim(($resource->last_name ?? '').' '.($resource->second_last_name ?? ''))),
             $this->escape($resource->first_name),
             $this->escape($resource->middle_name),
         ]);

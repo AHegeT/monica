@@ -30,6 +30,7 @@ class UpdateContact extends BaseService implements ServiceInterface
             'contact_id' => 'required|uuid|exists:contacts,id',
             'first_name' => 'required|string|max:255',
             'last_name' => 'nullable|string|max:255',
+            'second_last_name' => 'nullable|string|max:255',
             'middle_name' => 'nullable|string|max:255',
             'nickname' => 'nullable|string|max:255',
             'maiden_name' => 'nullable|string|max:255',
@@ -63,6 +64,7 @@ class UpdateContact extends BaseService implements ServiceInterface
 
         $this->contact->first_name = $data['first_name'];
         $this->contact->last_name = $this->valueOrNull($data, 'last_name');
+        $this->contact->second_last_name = $this->valueOrNull($data, 'second_last_name');
         $this->contact->middle_name = $this->valueOrNull($data, 'middle_name');
         $this->contact->maiden_name = $this->valueOrNull($data, 'maiden_name');
         $this->contact->nickname = $this->valueOrNull($data, 'nickname');

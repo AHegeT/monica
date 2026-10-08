@@ -12,13 +12,18 @@ class NameHelper
      * Format the name of the contact according to the user preferences.
      *
      * Users can format the name however they want, using variables like
-     * %first_name%, %last_name%, %middle_name%, %nickname%, %maiden_name%, and
+     * %first_name%, %last_name%, %second_last_name%, %middle_name%, %nickname%, %maiden_name%, and
      * so on). We need to parse this string and replace the variables with the
      * appropriate values.
      */
     public static function formatContactName(User $user, Contact $contact): string
     {
-        $allCharacters = str_split($user->name_order);
+        $nameOrder = $user->name_order;
+        if (str_contains($nameOrder, '%last_name%') && ! str_contains($nameOrder, '%second_last_name%')) {
+            $nameOrder = str_replace('%last_name%', '%last_name% %second_last_name%', $nameOrder);
+        }
+
+        $allCharacters = str_split($nameOrder);
 
         $variableFound = false;
         $variableName = '';

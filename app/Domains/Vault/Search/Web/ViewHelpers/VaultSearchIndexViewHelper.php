@@ -38,7 +38,7 @@ class VaultSearchIndexViewHelper
 
         return $contact->map(fn (Contact $contact) => [
             'id' => $contact->id,
-            'name' => $contact->first_name.' '.$contact->last_name.' '.$contact->nickname.' '.$contact->maiden_name.' '.$contact->middle_name,
+            'name' => $contact->first_name.' '.$contact->last_name.' '.$contact->second_last_name.' '.$contact->nickname.' '.$contact->maiden_name.' '.$contact->middle_name,
             'url' => route('contact.show', [
                 'vault' => $contact->vault_id,
                 'contact' => $contact->id,
@@ -62,7 +62,7 @@ class VaultSearchIndexViewHelper
             'written_at' => DateHelper::formatDate($note->created_at),
             'contact' => [
                 'id' => $note->contact_id,
-                'name' => $note->contact->first_name.' '.$note->contact->last_name.' '.$note->contact->nickname.' '.$note->contact->maiden_name.' '.$note->contact->middle_name,
+                'name' => $note->contact->first_name.' '.$note->contact->last_name.' '.$note->contact->second_last_name.' '.$note->contact->nickname.' '.$note->contact->maiden_name.' '.$note->contact->middle_name,
                 'url' => route('contact.show', [
                     'vault' => $vault->id,
                     'contact' => $note->contact_id,

@@ -167,12 +167,28 @@
                       :maxlength="255"
                       :label="$t('Last name')" />
 
+                    <text-input
+                      v-if="showSecondLastNameField"
+                      :id="'second_last_name'"
+                      v-model="form.second_last_name"
+                      :class="'mb-5'"
+                      :input-class="'block w-full'"
+                      :required="false"
+                      :maxlength="255"
+                      :label="$t('Second last name')" />
+
                     <div class="mb-4 flex flex-wrap text-xs">
                       <span
                         v-if="!showLastNameField"
                         class="mb-2 me-2 flex cursor-pointer flex-wrap rounded-lg border bg-slate-200 px-1 py-1 hover:bg-slate-300 dark:bg-slate-500 dark:text-gray-900"
                         @click="displayLastNameField">
                         {{ $t('+ last name') }}
+                      </span>
+                      <span
+                        v-if="!showSecondLastNameField"
+                        class="mb-2 me-2 flex cursor-pointer flex-wrap rounded-lg border bg-slate-200 px-1 py-1 hover:bg-slate-300 dark:bg-slate-500 dark:text-gray-900"
+                        @click="showSecondLastNameField = true">
+                        {{ $t('+ second last name') }}
                       </span>
                       <span
                         v-if="!showMiddleNameField"
@@ -384,6 +400,7 @@ export default {
       showMoreContactOptions: false,
       showContactName: false,
       showLastNameField: false,
+      showSecondLastNameField: false,
       showMiddleNameField: false,
       showNicknameField: false,
       showMaidenNameField: false,
@@ -399,6 +416,7 @@ export default {
         base_contact_id: 0,
         other_contact_id: [],
         last_name: '',
+        second_last_name: '',
         middle_name: '',
         nickname: '',
         maiden_name: '',

@@ -75,6 +75,16 @@
               :maxlength="255"
               :label="$t('Last name')" />
 
+            <!-- second last name -->
+            <text-input
+              :id="'second_last_name'"
+              v-model="form.second_last_name"
+              :class="'mb-5'"
+              :input-class="'block w-full'"
+              :required="false"
+              :maxlength="255"
+              :label="$t('Second last name')" />
+
             <!-- middle name -->
             <text-input
               :id="'middle_name'"
@@ -198,6 +208,7 @@ export default {
       form: {
         first_name: '',
         last_name: '',
+        second_last_name: '',
         middle_name: '',
         nickname: '',
         maiden_name: '',
@@ -213,6 +224,7 @@ export default {
   mounted() {
     this.form.first_name = this.data.contact.first_name;
     this.form.last_name = this.data.contact.last_name;
+    this.form.second_last_name = this.data.contact.second_last_name;
     this.form.middle_name = this.data.contact.middle_name;
     this.form.nickname = this.data.contact.nickname;
     this.form.maiden_name = this.data.contact.maiden_name;

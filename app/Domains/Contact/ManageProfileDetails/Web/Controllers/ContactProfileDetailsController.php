@@ -50,12 +50,6 @@ class ContactProfileDetailsController extends Controller
                 return;
             }
 
-            if (! in_array(count($strengths), [0, 3], true) || ! in_array(count($weaknesses), [0, 3], true) || count($strengths) !== count($weaknesses)) {
-                $validator->errors()->add('working_genius_strengths', 'Choose exactly three strengths and three weaknesses, or clear both lists.');
-
-                return;
-            }
-
             if (array_intersect($strengths, $weaknesses) !== []) {
                 $validator->errors()->add('working_genius_weaknesses', 'A Working Genius cannot be both a strength and a weakness.');
             }

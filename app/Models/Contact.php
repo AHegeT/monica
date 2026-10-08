@@ -47,6 +47,7 @@ class Contact extends VCardResource
         'pronoun_id',
         'first_name',
         'last_name',
+        'second_last_name',
         'middle_name',
         'nickname',
         'maiden_name',
@@ -85,12 +86,13 @@ class Contact extends VCardResource
      *
      * @codeCoverageIgnore
      */
-    #[SearchUsingFullText(['first_name', 'last_name', 'middle_name', 'nickname', 'maiden_name'], ['expanded' => true])]
+    #[SearchUsingFullText(['first_name', 'last_name', 'second_last_name', 'middle_name', 'nickname', 'maiden_name'], ['expanded' => true])]
     public function toSearchableArray(): array
     {
         return array_merge(ScoutHelper::id($this), [
             'first_name' => $this->first_name ?? '',
             'last_name' => $this->last_name ?? '',
+            'second_last_name' => $this->second_last_name ?? '',
             'middle_name' => $this->middle_name ?? '',
             'nickname' => $this->nickname ?? '',
             'maiden_name' => $this->maiden_name ?? '',
@@ -127,6 +129,7 @@ class Contact extends VCardResource
                 $pattern = '%'.$word.'%';
                 $query->where('first_name', 'like', $pattern)
                     ->orWhere('last_name', 'like', $pattern)
+                    ->orWhere('second_last_name', 'like', $pattern)
                     ->orWhere('middle_name', 'like', $pattern)
                     ->orWhere('nickname', 'like', $pattern)
                     ->orWhere('maiden_name', 'like', $pattern);
@@ -478,9 +481,11 @@ class Contact extends VCardResource
 
                 $firstName = Arr::get($attributes, 'first_name');
                 $lastName = Arr::get($attributes, 'last_name');
-                $separator = $firstName && $lastName ? ' ' : '';
+                $secondLastName = Arr::get($attributes, 'second_last_name');
+                $lastNames = trim(implode(' ', array_filter([$lastName, $secondLastName])));
+                $separator = $firstName && $lastNames ? ' ' : '';
 
-                return $firstName.$separator.$lastName;
+                return $firstName.$separator.$lastNames;
             }
         );
     }

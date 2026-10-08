@@ -53,6 +53,7 @@ class ContactRelationshipsController extends Controller
                 'vault_id' => $vaultId,
                 'first_name' => $request->input('first_name'),
                 'last_name' => $request->input('last_name'),
+                'second_last_name' => $request->input('second_last_name'),
                 'middle_name' => $request->input('middle_name'),
                 'nickname' => $request->input('nickname'),
                 'maiden_name' => $request->input('maiden_name'),

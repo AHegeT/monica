@@ -161,6 +161,21 @@ const submit = () => {
         </div>
         <div class="mb-2 flex items-center">
           <input
+            id="first_name_two_last_names"
+            v-model="form.nameOrder"
+            value="%first_name% %last_name% %second_last_name%"
+            name="name-order"
+            type="radio"
+            class="h-4 w-4 border-gray-300 text-sky-500 dark:border-gray-700" />
+          <label
+            for="first_name_two_last_names"
+            class="ms-3 block cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-300">
+            {{ $t('First name and both last names') }}
+            <span class="ms-4 font-normal text-gray-500"> James Bond Smith </span>
+          </label>
+        </div>
+        <div class="mb-2 flex items-center">
+          <input
             id="first_name_last_name_nickname"
             v-model="form.nameOrder"
             value="%first_name% %last_name% (%nickname%)"
