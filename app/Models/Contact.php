@@ -206,6 +206,18 @@ class Contact extends VCardResource
         return $this->hasMany(ContactInformation::class);
     }
 
+    /** @return \Illuminate\Database\Eloquent\Relations\HasMany<ContactEmployment, $this> */
+    public function employments(): HasMany
+    {
+        return $this->hasMany(ContactEmployment::class);
+    }
+
+    /** @return \Illuminate\Database\Eloquent\Relations\HasMany<ContactProfileTag, $this> */
+    public function profileTags(): HasMany
+    {
+        return $this->hasMany(ContactProfileTag::class);
+    }
+
     /**
      * Get the note records associated with the contact.
      *
@@ -338,7 +350,7 @@ class Contact extends VCardResource
      */
     public function groups(): BelongsToMany
     {
-        return $this->belongsToMany(Group::class);
+        return $this->belongsToMany(Group::class)->withPivot(['is_active', 'group_type_role_id']);
     }
 
     /**

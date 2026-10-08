@@ -51,6 +51,7 @@ class ContactShowViewHelper
             'listed' => $contact->listed,
             'template_pages' => $templatesPagesCollection,
             'contact_information' => self::getContactInformation($templatePages, $contact, $user),
+            'profile_details' => self::profileDetails($contact),
             'group_summary_information' => GroupsViewHelper::summary($contact),
             'quick_fact_template_entries' => self::quickFacts($contact),
             'modules' => $firstPage ? self::modules($firstPage, $contact, $user) : [],
@@ -105,6 +106,7 @@ class ContactShowViewHelper
             'listed' => $contact->listed,
             'template_pages' => self::getTemplatePagesList($templatePages, $contact, $templatePage),
             'contact_information' => self::getContactInformation($templatePages, $contact, $user),
+            'profile_details' => self::profileDetails($contact),
             'group_summary_information' => GroupsViewHelper::summary($contact),
             'quick_fact_template_entries' => self::quickFacts($contact),
             'modules' => self::modules($templatePage, $contact, $user),
@@ -221,6 +223,19 @@ class ContactShowViewHelper
         }
 
         return $modulesCollection;
+    }
+
+    private static function profileDetails(Contact $contact): array
+    {
+        return [
+            'employments' => $contact->employments()->orderByDesc('is_current')->orderByDesc('started_on')->get(),
+            'interests' => $contact->profileTags()->where('kind', 'interest')->orderBy('name')->get(),
+            'skills' => $contact->profileTags()->where('kind', 'skill')->orderBy('name')->get(),
+            'url' => [
+                'employments' => route('contact.employments.store', ['vault' => $contact->vault_id, 'contact' => $contact->id]),
+                'tags' => route('contact.profile_tags.store', ['vault' => $contact->vault_id, 'contact' => $contact->id]),
+            ],
+        ];
     }
 
     /**

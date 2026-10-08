@@ -54,7 +54,7 @@ class AddContactToGroup extends QueuableService implements ServiceInterface
         $this->validate();
 
         $this->group->contacts()->syncWithoutDetaching([
-            $this->contact->id => ['group_type_role_id' => optional($this->role)->id],
+            $this->contact->id => ['group_type_role_id' => optional($this->role)->id, 'is_active' => true],
         ]);
 
         $this->group->touch();

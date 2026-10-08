@@ -89,10 +89,12 @@ class ModuleGroupsViewHelper
             'name' => $group->name,
             'type' => [
                 'id' => optional($group->groupType)->id,
+                'name' => optional($group->groupType)->label,
             ],
             'contacts' => $contacts,
             'roles' => $roles,
             'selected' => $taken,
+            'is_active' => (bool) ($group->pivot->is_active ?? true),
             'url' => [
                 'show' => route('group.show', [
                     'vault' => $contact->vault_id,
@@ -102,6 +104,11 @@ class ModuleGroupsViewHelper
                     'vault' => $contact->vault_id,
                     'contact' => $contact->id,
                     'group' => $group->id,
+                ]),
+                'toggle_active' => route('contact.groups.active.update', [
+                    'vault' => $contact->vault_id,
+                    'contact' => $contact->id,
+                    'groupId' => $group->id,
                 ]),
             ],
         ];

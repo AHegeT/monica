@@ -87,6 +87,10 @@
         class="item-list flex items-center justify-between border-b border-gray-200 px-5 py-2 hover:bg-slate-50 dark:border-gray-700 dark:bg-slate-900 dark:hover:bg-slate-800">
         <div>
           <p class="font-semibold">{{ group.name }}</p>
+          <p v-if="group.type && group.type.name" class="text-xs text-gray-500">{{ group.type.name }}</p>
+          <p class="text-xs" :class="group.is_active ? 'text-green-600' : 'text-gray-500'">
+            {{ group.is_active ? $t('Active') : $t('Inactive') }}
+          </p>
 
           <div v-if="group.contacts" class="relative flex -space-x-2 overflow-hidden py-1">
             <div v-for="contact in group.contacts" :key="contact.id" class="inline-block">
@@ -101,6 +105,9 @@
         <ul class="text-sm">
           <li class="me-4 inline cursor-pointer">
             <InertiaLink :href="group.url.show" class="text-blue-500 hover:underline">{{ $t('Show') }}</InertiaLink>
+          </li>
+          <li class="me-4 inline cursor-pointer text-blue-500 hover:underline" @click="toggleActive(group)">
+            {{ group.is_active ? $t('Mark inactive') : $t('Mark active') }}
           </li>
           <li class="inline cursor-pointer text-red-500 hover:text-red-900" @click="destroy(group)">
             {{ $t('Leave') }}
@@ -249,6 +256,13 @@ export default {
             this.form.errors = error.response.data;
           });
       }
+    },
+
+    toggleActive(group) {
+      const is_active = !group.is_active;
+      axios.put(group.url.toggle_active, { is_active }).then(() => {
+        group.is_active = is_active;
+      });
     },
   },
 };

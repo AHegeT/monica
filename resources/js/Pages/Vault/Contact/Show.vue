@@ -20,6 +20,7 @@ import Reminders from '@/Shared/Modules/Reminders.vue';
 import Feed from '@/Shared/Modules/Feed.vue';
 import Loans from '@/Shared/Modules/Loans.vue';
 import JobInformation from '@/Shared/Modules/JobInformation.vue';
+import ProfileDetails from '@/Shared/Modules/ProfileDetails.vue';
 import Relationships from '@/Shared/Modules/Relationships.vue';
 import Tasks from '@/Shared/Modules/Tasks.vue';
 import Calls from '@/Shared/Modules/Calls.vue';
@@ -223,6 +224,8 @@ const navigateToSelected = () => {
                 <Religion v-else-if="module.type === 'religions'" :data="module.data" />
               </div>
             </div>
+
+            <ProfileDetails :data="data.profile_details" />
 
             <ul class="text-xs">
               <!-- remove avatar -->

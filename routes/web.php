@@ -24,6 +24,7 @@ use App\Domains\Contact\ManageGoals\Web\Controllers\ContactModuleStreakControlle
 use App\Domains\Contact\ManageGroups\Web\Controllers\ContactModuleGroupController;
 use App\Domains\Contact\ManageGroups\Web\Controllers\GroupController;
 use App\Domains\Contact\ManageJobInformation\Web\Controllers\ContactModuleJobInformationController;
+use App\Domains\Contact\ManageProfileDetails\Web\Controllers\ContactProfileDetailsController;
 use App\Domains\Contact\ManageLabels\Web\Controllers\ContactModuleLabelController;
 use App\Domains\Contact\ManageLifeEvents\Web\Controllers\ContactModuleLifeEventController;
 use App\Domains\Contact\ManageLifeEvents\Web\Controllers\ContactModuleTimelineEventController;
@@ -339,6 +340,14 @@ Route::middleware([
                     Route::get('companies/list', [ContactModuleJobInformationController::class, 'index'])->name('contact.companies.list.index');
                     Route::put('jobInformation', [ContactModuleJobInformationController::class, 'update'])->name('contact.job_information.update');
                     Route::delete('jobInformation', [ContactModuleJobInformationController::class, 'destroy'])->name('contact.job_information.destroy');
+
+                    // structured profile details
+                    Route::get('profileDetails', [ContactProfileDetailsController::class, 'index'])->name('contact.profile_details.index');
+                    Route::post('employments', [ContactProfileDetailsController::class, 'storeEmployment'])->name('contact.employments.store');
+                    Route::delete('employments/{employmentId}', [ContactProfileDetailsController::class, 'destroyEmployment'])->name('contact.employments.destroy');
+                    Route::post('profileTags', [ContactProfileDetailsController::class, 'storeTag'])->name('contact.profile_tags.store');
+                    Route::delete('profileTags/{tagId}', [ContactProfileDetailsController::class, 'destroyTag'])->name('contact.profile_tags.destroy');
+                    Route::put('groups/{groupId}/active', [ContactProfileDetailsController::class, 'toggleGroupActive'])->name('contact.groups.active.update');
 
                     // religion
                     Route::put('religion', [ContactModuleReligionController::class, 'update'])->name('contact.religion.update');
