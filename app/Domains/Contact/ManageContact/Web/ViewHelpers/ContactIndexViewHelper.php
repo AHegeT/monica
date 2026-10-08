@@ -8,7 +8,7 @@ use App\Models\Vault;
 
 class ContactIndexViewHelper
 {
-    public static function data($contacts, Vault $vault, ?int $labelId, User $user): array
+    public static function data($contacts, Vault $vault, ?int $labelId, User $user, string $searchTerm = ''): array
     {
         $contactCollection = collect();
         foreach ($contacts as $contact) {
@@ -26,7 +26,7 @@ class ContactIndexViewHelper
         }
 
         $labelsCollection = $vault->labels()
-            ->withCount('contacts')
+            ->withCount(['contacts' => fn ($query) => $query->active()])
             ->get()
             ->sortByCollator('name')
             ->filter(fn (Label $label): bool => $label->contacts_count > 0)
@@ -46,6 +46,7 @@ class ContactIndexViewHelper
             'contacts' => $contactCollection,
             'labels' => $labelsCollection,
             'current_label' => $labelId,
+            'search_term' => $searchTerm,
             'user_contact_sort_order' => $user->contact_sort_order,
             'contact_sort_orders' => collect([
                 [
@@ -67,6 +68,9 @@ class ContactIndexViewHelper
                         'vault' => $vault->id,
                     ]),
                     'create' => route('contact.create', [
+                        'vault' => $vault->id,
+                    ]),
+                    'archived' => route('contact.archived', [
                         'vault' => $vault->id,
                     ]),
                 ],

@@ -17,6 +17,7 @@ class VaultShowViewHelper
     public static function lastUpdatedContacts(Vault $vault): Collection
     {
         return $vault->contacts()
+            ->active()
             ->orderBy('last_updated_at', 'desc')
             ->take(5)
             ->get()
@@ -55,7 +56,7 @@ class VaultShowViewHelper
         $remindersCollection = $contactRemindersScheduled->map(function ($reminder) use ($vault, $user) {
             $contact = $reminder->contact;
 
-            if ($contact->vault_id != $vault->id) {
+            if ($contact->vault_id != $vault->id || ! $contact->listed) {
                 return null;
             }
 
@@ -99,6 +100,7 @@ class VaultShowViewHelper
     public static function favorites(Vault $vault, User $user): Collection
     {
         return $user->contacts()
+            ->active()
             ->wherePivot('vault_id', $vault->id)
             ->wherePivot('is_favorite', true)
             ->get()
@@ -118,6 +120,7 @@ class VaultShowViewHelper
     public static function dueTasks(Vault $vault, User $user): array
     {
         $tasksCollection = $vault->contacts()
+            ->active()
             ->with('tasks')
             ->get()
             ->flatMap(fn (Contact $contact) => $contact->tasks)

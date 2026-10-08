@@ -21,6 +21,7 @@ class SetRelationship extends BaseService implements ServiceInterface
             'vault_id' => 'required|uuid|exists:vaults,id',
             'author_id' => 'required|uuid|exists:users,id',
             'relationship_type_id' => 'required|integer|exists:relationship_types,id',
+            'closeness_level' => 'nullable|integer|between:1,3',
             'contact_id' => 'required|uuid|exists:contacts,id',
             'other_contact_id' => 'required|uuid|exists:contacts,id',
         ];
@@ -67,6 +68,7 @@ class SetRelationship extends BaseService implements ServiceInterface
         $contact->relationships()->syncWithoutDetaching([
             $otherContact->id => [
                 'relationship_type_id' => $relationshipType->id,
+                'closeness_level' => $data['closeness_level'] ?? null,
             ],
         ]);
     }

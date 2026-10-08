@@ -31,7 +31,7 @@ class ModuleRelationshipViewHelper
                     ->join('contacts as contact1', 'relationships.contact_id', '=', 'contact1.id')
                     ->join('contacts as contact2', 'relationships.related_contact_id', '=', 'contact2.id')
                     ->join('relationship_types', 'relationships.relationship_type_id', '=', 'relationship_types.id')
-                    ->select('relationships.id as main_id', 'relationship_types.id', 'relationships.contact_id', 'relationships.related_contact_id', 'contact1.deleted_at', 'contact2.deleted_at')
+                    ->select('relationships.id as main_id', 'relationships.closeness_level', 'relationship_types.id', 'relationships.contact_id', 'relationships.related_contact_id', 'contact1.deleted_at', 'contact2.deleted_at')
                     ->where('relationships.relationship_type_id', $relationshipType->id)
                     ->where('contact1.deleted_at', null)
                     ->where('contact2.deleted_at', null)
@@ -47,11 +47,15 @@ class ModuleRelationshipViewHelper
 
                 foreach ($relations as $relation) {
                     if ($relation->contact_id === $contact->id) {
-                        $relatedContact = Contact::find($relation->related_contact_id);
+                        $relatedContact = Contact::active()->find($relation->related_contact_id);
                         $relationshipName = $relationshipType->name_reverse_relationship;
                     } else {
-                        $relatedContact = Contact::find($relation->contact_id);
+                        $relatedContact = Contact::active()->find($relation->contact_id);
                         $relationshipName = $relationshipType->name;
+                    }
+
+                    if ($relatedContact === null) {
+                        continue;
                     }
 
                     $relationshipTypesCollection->push([
@@ -60,8 +64,14 @@ class ModuleRelationshipViewHelper
                             'id' => $relationshipType->id,
                             'name' => $relationshipName,
                         ],
+                        'closeness_level' => $relation->closeness_level === null ? null : (int) $relation->closeness_level,
                         'url' => [
                             'update' => route('contact.relationships.update', [
+                                'vault' => $contact->vault->id,
+                                'contact' => $contact->id,
+                                'relationship' => $relation->main_id,
+                            ]),
+                            'update_closeness' => route('contact.relationships.closeness.update', [
                                 'vault' => $contact->vault->id,
                                 'contact' => $contact->id,
                                 'relationship' => $relation->main_id,

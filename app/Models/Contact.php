@@ -115,6 +115,27 @@ class Contact extends VCardResource
     }
 
     /**
+     * Scope a query to contacts whose name fields match every search word.
+     */
+    public function scopeNameMatches(Builder $query, string $term): Builder
+    {
+        $words = preg_split('/\s+/u', trim($term), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+
+        foreach ($words as $word) {
+            $query->where(function (Builder $query) use ($word) {
+                $pattern = '%'.$word.'%';
+                $query->where('first_name', 'like', $pattern)
+                    ->orWhere('last_name', 'like', $pattern)
+                    ->orWhere('middle_name', 'like', $pattern)
+                    ->orWhere('nickname', 'like', $pattern)
+                    ->orWhere('maiden_name', 'like', $pattern);
+            });
+        }
+
+        return $query;
+    }
+
+    /**
      * Used to delete related objects from scout driver instance.
      */
     protected static function boot(): void

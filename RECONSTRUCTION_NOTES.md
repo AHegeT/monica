@@ -10,9 +10,14 @@ Contact notes are stored as plain text in the `notes.body` database column. The 
 
 The current `main` branch includes a public `/testing` route that returns `success`. Contact notes remain stored as plain text; the editor can insert Markdown bullet markers, and note views render Markdown with raw HTML removed, unsafe links disabled, and ordinary line breaks preserved.
 
-## Live deployment compatibility
+## Live deployment
 
-The live Droplet still runs Monica v4.1.2 on Laravel 9.52.16 and PHP 8.2.26. The route and Docker overlay under `deploy/` on branch `codex/testing-route-v4.1.2` target that exact image. They should not be used to replace the live image with this newer `main` checkout; upgrading the live app needs a separate compatibility and database migration plan.
+The live Droplet now runs the fork's `main` build in Docker, served at
+`https://monica.promptu.net`. Its SQLite database is stored in the persistent
+`monica_next_data` Docker volume and contains the imported contact data. The
+previous Monica container, MariaDB database, and storage volume were retained
+for rollback. See [the development and deployment setup](docs/development-and-deployment.md)
+for the current topology and release procedure.
 
 ## Python reconstruction direction
 

@@ -15,6 +15,9 @@
 /vendor
 /results
 /.scribe
+/docs/internal/
+/monica-analysis.md
+/scripts/run-app.sh
 /tests/Features/screenshots/
 /tests/Features/videos/
 .pnp.*

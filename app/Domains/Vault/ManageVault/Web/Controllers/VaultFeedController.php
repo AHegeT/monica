@@ -17,7 +17,7 @@ class VaultFeedController extends Controller
     {
         $vault = Vault::findOrFail($vaultId);
 
-        $contactIds = Contact::where('vault_id', $vaultId)->select('id')->get()->toArray();
+        $contactIds = Contact::active()->where('vault_id', $vaultId)->select('id')->get()->toArray();
 
         $items = ContactFeedItem::whereIn('contact_id', $contactIds)
             ->with([

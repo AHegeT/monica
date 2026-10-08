@@ -25,6 +25,7 @@ class PostShowViewHelper
         $tags = self::getTags($post);
 
         $contacts = $post->contacts()
+            ->active()
             ->get()
             ->map(fn (Contact $contact) => ContactCardHelper::data($contact));
 

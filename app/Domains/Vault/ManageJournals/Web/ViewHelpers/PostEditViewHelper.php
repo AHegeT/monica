@@ -47,6 +47,7 @@ class PostEditViewHelper
         });
 
         $contacts = $post->contacts()
+            ->active()
             ->get()
             ->map(fn (Contact $contact) => self::dtoContact($contact));
 

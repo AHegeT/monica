@@ -313,6 +313,16 @@
                 </label>
               </div>
             </div>
+
+            <div class="border-b border-gray-200 p-5 dark:border-gray-700">
+              <Dropdown
+                id="closeness-level"
+                v-model.number="form.closeness_level"
+                :data="closenessOptions"
+                :label="$t('Closeness')"
+                :placeholder="$t('Not set')"
+                :dropdown-class="'block w-full'" />
+            </div>
           </div>
 
           <!-- actions -->
@@ -384,6 +394,7 @@ export default {
         choice: 'unknown',
         create_contact_entry: false,
         relationship_type_id: 0,
+        closeness_level: '',
         base_contact_id: 0,
         other_contact_id: [],
         last_name: '',
@@ -398,6 +409,14 @@ export default {
   },
 
   computed: {
+    closenessOptions() {
+      return [
+        { id: '', name: this.$t('Not set') },
+        { id: 1, name: `1 · ${this.$t('Acquaintance')}` },
+        { id: 2, name: `2 · ${this.$t('Friendly')}` },
+        { id: 3, name: `3 · ${this.$t('Very close (BFF)')}` },
+      ];
+    },
     fromRelationshipOptions() {
       return _.map(this.data.relationship_group_types, (group) => {
         return {

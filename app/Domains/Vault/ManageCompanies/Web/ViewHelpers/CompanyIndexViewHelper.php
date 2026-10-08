@@ -27,6 +27,7 @@ class CompanyIndexViewHelper
             'id' => $company->id,
             'name' => $company->name,
             'contacts' => $company->contacts()
+                ->active()
                 ->get()
                 ->map(fn (Contact $contact) => [
                     'id' => $contact->id,

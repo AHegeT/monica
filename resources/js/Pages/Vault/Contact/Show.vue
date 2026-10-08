@@ -11,7 +11,6 @@ import JetSecondaryButton from '@/Components/Jetstream/SecondaryButton.vue';
 import Layout from '@/Layouts/Layout.vue';
 import ContactName from '@/Shared/Modules/ContactName.vue';
 import ContactAvatar from '@/Shared/Modules/ContactAvatar.vue';
-import GenderPronoun from '@/Shared/Modules/GenderPronoun.vue';
 import FamilySummary from '@/Shared/Modules/FamilySummary.vue';
 import Notes from '@/Shared/Modules/Notes.vue';
 import ImportantDates from '@/Shared/Modules/ImportantDates.vue';
@@ -27,11 +26,9 @@ import Calls from '@/Shared/Modules/Calls.vue';
 import Pets from '@/Shared/Modules/Pets.vue';
 import Goals from '@/Shared/Modules/Goals.vue';
 import Addresses from '@/Shared/Modules/Addresses.vue';
-import Groups from '@/Shared/Modules/Groups.vue';
 import ContactInformation from '@/Shared/Modules/ContactInformation.vue';
 import Documents from '@/Shared/Modules/Documents.vue';
 import Photos from '@/Shared/Modules/Photos.vue';
-import Religion from '@/Shared/Modules/Religion.vue';
 import Posts from '@/Shared/Modules/Posts.vue';
 import LifeEvent from '@/Shared/Modules/LifeEvent.vue';
 import QuickFacts from '@/Shared/Modules/QuickFacts.vue';
@@ -213,15 +210,11 @@ const navigateToSelected = () => {
 
                 <FamilySummary v-else-if="module.type === 'family_summary'" :data="module.data" />
 
-                <GenderPronoun v-else-if="module.type === 'gender_pronoun'" :data="module.data" />
-
                 <ImportantDates v-else-if="module.type === 'important_dates'" :data="module.data" />
 
                 <Labels v-else-if="module.type === 'labels'" :data="module.data" />
 
                 <JobInformation v-else-if="module.type === 'company'" :data="module.data" />
-
-                <Religion v-else-if="module.type === 'religions'" :data="module.data" />
               </div>
             </div>
 
@@ -356,7 +349,10 @@ const navigateToSelected = () => {
 
                 <Loans v-else-if="module.type === 'loans'" :data="module.data" :layout-data="layoutData" />
 
-                <Relationships v-else-if="module.type === 'relationships'" :data="module.data" />
+                <Relationships
+                  v-else-if="module.type === 'relationships'"
+                  :data="module.data"
+                  :can-edit="layoutData.vault.permission.at_least_editor" />
 
                 <Tasks v-else-if="module.type === 'tasks'" :data="module.data" />
 
@@ -367,8 +363,6 @@ const navigateToSelected = () => {
                 <Goals v-else-if="module.type === 'goals'" :data="module.data" />
 
                 <Addresses v-else-if="module.type === 'addresses'" :data="module.data" />
-
-                <Groups v-else-if="module.type === 'groups'" :data="module.data" />
 
                 <ContactInformation v-else-if="module.type === 'contact_information'" :data="module.data" />
 

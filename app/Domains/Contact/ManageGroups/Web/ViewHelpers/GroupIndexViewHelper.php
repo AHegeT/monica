@@ -19,6 +19,7 @@ class GroupIndexViewHelper
             ->sortByCollator('name')
             ->map(function (Group $group) {
                 $contactsCollection = $group->contacts()
+                    ->active()
                     ->get()
                     ->map(fn (Contact $contact) => [
                         'id' => $contact->id,
@@ -36,6 +37,10 @@ class GroupIndexViewHelper
                     'name' => $group->name,
                     'url' => [
                         'show' => route('group.show', [
+                            'vault' => $group->vault_id,
+                            'group' => $group->id,
+                        ]),
+                        'edit' => route('group.edit', [
                             'vault' => $group->vault_id,
                             'group' => $group->id,
                         ]),

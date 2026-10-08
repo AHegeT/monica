@@ -52,7 +52,7 @@ class VaultCalendarIndexViewHelper
         $lastDayOfMonth = CarbonImmutable::create($year, $month, 1)->endOfMonth();
         $startOfWeek = $firstDayOfMonth->startOfWeek();
         $endOfWeek = $lastDayOfMonth->endOfWeek();
-        $contactsId = $vault->contacts()->pluck('id');
+        $contactsId = $vault->contacts()->active()->pluck('id');
 
         // @phpstan-ignore-next-line
         return collect($startOfWeek->toPeriod($endOfWeek)->toArray())
@@ -140,7 +140,7 @@ class VaultCalendarIndexViewHelper
     {
         $date = Carbon::createFromDate($year, $month, $day);
         $immutableDate = CarbonImmutable::createFromDate($year, $month, $day);
-        $contactsId = $vault->contacts()->pluck('id');
+        $contactsId = $vault->contacts()->active()->pluck('id');
 
         return [
             'day' => DateHelper::formatFullDate($date),

@@ -24,6 +24,7 @@ class ReportCountriesShowViewHelper
                 'name' => Str::ucfirst($address->country),
                 'address' => MapHelper::getAddressAsString($address),
                 'contacts' => $address->contacts()
+                    ->active()
                     ->get()
                     ->map(fn (Contact $contact) => ContactCardHelper::data($contact)),
             ]);

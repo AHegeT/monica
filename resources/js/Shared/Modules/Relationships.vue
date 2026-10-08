@@ -45,8 +45,20 @@
                 >
               </div>
 
-              <!-- relationship type -->
-              <span class="me-2 text-gray-400">{{ relationshipType.relationship_type.name }}</span>
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="text-gray-400">{{ relationshipType.relationship_type.name }}</span>
+                <select
+                  :value="relationshipType.closeness_level ?? ''"
+                  :aria-label="$t('Closeness')"
+                  :disabled="!canEdit"
+                  class="rounded border-gray-300 py-1 text-xs dark:border-gray-700 dark:bg-gray-800"
+                  @change="updateCloseness(relationshipType, $event.target.value)">
+                  <option value="">{{ $t('Not set') }}</option>
+                  <option value="1">1 · {{ $t('Acquaintance') }}</option>
+                  <option value="2">2 · {{ $t('Friendly') }}</option>
+                  <option value="3">3 · {{ $t('Very close (BFF)') }}</option>
+                </select>
+              </div>
             </div>
 
             <!-- actions -->
@@ -89,6 +101,10 @@ export default {
       type: Object,
       default: null,
     },
+    canEdit: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   data() {
@@ -102,6 +118,21 @@ export default {
   },
 
   methods: {
+    updateCloseness(relationship, value) {
+      const closenessLevel = value === '' ? null : Number(value);
+      const previousLevel = relationship.closeness_level;
+      relationship.closeness_level = closenessLevel;
+
+      axios
+        .put(relationship.url.update_closeness, { closeness_level: closenessLevel })
+        .then((response) => {
+          relationship.closeness_level = response.data.data.closeness_level;
+        })
+        .catch((error) => {
+          relationship.closeness_level = previousLevel;
+          this.flash(error.response?.data?.message ?? this.$t('Changes could not be saved'), 'error');
+        });
+    },
     destroy(relationshipType) {
       if (confirm(this.$t('Are you sure? This action cannot be undone.'))) {
         axios

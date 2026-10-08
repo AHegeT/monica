@@ -13,6 +13,7 @@ class VaultTasksIndexViewHelper
     public static function data(Vault $vault, User $user): Collection
     {
         $contacts = $vault->contacts()
+            ->active()
             ->with('tasks')
             ->get()
             ->sortByCollator('last_name');

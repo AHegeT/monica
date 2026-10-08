@@ -11,8 +11,10 @@ class VaultContactSearchViewHelper
     public static function data(Vault $vault, string $term): Collection
     {
         /** @var Collection<int, Contact> */
-        $contacts = Contact::search($term)
+        $contacts = Contact::query()
+            ->active()
             ->where('vault_id', $vault->id)
+            ->nameMatches($term)
             ->orderBy('first_name')
             ->orderBy('last_name')
             ->take(5)

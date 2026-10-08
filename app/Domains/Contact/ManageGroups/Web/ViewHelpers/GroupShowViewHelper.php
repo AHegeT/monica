@@ -24,6 +24,7 @@ class GroupShowViewHelper
                 ->get()
                 ->map(function (GroupTypeRole $role) use ($group) { // @phpstan-ignore-line
                     $contactsCollection = $group->contacts()
+                        ->active()
                         ->wherePivot('group_type_role_id', $role->id)
                         ->get()
                         ->map(fn (Contact $contact) => [
@@ -46,6 +47,7 @@ class GroupShowViewHelper
 
         // now we get all the contacts that are not assigned to a role
         $contactsCollection = $group->contacts()
+            ->active()
             ->wherePivotNull('group_type_role_id')
             ->get()
             ->map(fn (Contact $contact) => [
@@ -71,7 +73,8 @@ class GroupShowViewHelper
         return [
             'id' => $group->id,
             'name' => $group->name,
-            'contact_count' => $group->contacts->count(),
+            'contact_count' => $group->contacts()->active()->count(),
+            'contact_ids' => $group->contacts->pluck('id'),
             'type' => [
                 'label' => optional($group->groupType)->label,
             ],
@@ -82,6 +85,10 @@ class GroupShowViewHelper
                     'group' => $group->id,
                 ]),
                 'destroy' => route('group.destroy', [
+                    'vault' => $group->vault_id,
+                    'group' => $group->id,
+                ]),
+                'add_contacts' => route('group.contacts.store', [
                     'vault' => $group->vault_id,
                     'group' => $group->id,
                 ]),

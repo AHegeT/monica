@@ -755,6 +755,13 @@ class SetupAccount extends QueuableService implements ServiceInterface
                 'can_be_deleted' => true,
                 'type' => null,
             ],
+            [
+                'name_translation_key' => trans_key('ex-spouse'),
+                'name_reverse_relationship_translation_key' => trans_key('ex-spouse'),
+                'relationship_group_type_id' => $group->id,
+                'can_be_deleted' => true,
+                'type' => null,
+            ],
         ]);
 
         // Family type

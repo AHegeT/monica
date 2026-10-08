@@ -55,6 +55,7 @@ class ModuleGroupsViewHelper
     public static function dto(Contact $contact, Group $group, bool $taken = false): array
     {
         $contacts = $group->contacts()
+            ->active()
             ->get()
             ->sortByCollator('first_name')
             ->map(function ($contact) {

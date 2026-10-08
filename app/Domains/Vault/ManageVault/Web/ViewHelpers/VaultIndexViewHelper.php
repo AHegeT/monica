@@ -44,6 +44,9 @@ class VaultIndexViewHelper
                     'contacts' => route('contact.index', [
                         'vault' => $vault->id,
                     ]),
+                    'archived_contacts' => route('contact.archived', [
+                        'vault' => $vault->id,
+                    ]),
                     'calendar' => route('vault.calendar.index', [
                         'vault' => $vault->id,
                     ]),

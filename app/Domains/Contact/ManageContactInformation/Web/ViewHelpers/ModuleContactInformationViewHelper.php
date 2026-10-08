@@ -27,7 +27,7 @@ class ModuleContactInformationViewHelper
             ->get()
             ->groupBy('type')
             ->map(fn (Collection $collection) => [
-                'optgroup' => $groups[$collection[0]->type],
+                'optgroup' => $groups->get($collection[0]->type, Str::headline($collection[0]->type)),
                 'options' => $collection
                     ->map(fn (ContactInformationType $contactInformationType) => [
                         'id' => $contactInformationType->id,

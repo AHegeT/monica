@@ -231,6 +231,7 @@ class ContactShowViewHelper
             'employments' => $contact->employments()->orderByDesc('is_current')->orderByDesc('started_on')->get(),
             'interests' => $contact->profileTags()->where('kind', 'interest')->orderBy('name')->get(),
             'skills' => $contact->profileTags()->where('kind', 'skill')->orderBy('name')->get(),
+            'groups' => ModuleGroupsViewHelper::data($contact),
             'url' => [
                 'employments' => route('contact.employments.store', ['vault' => $contact->vault_id, 'contact' => $contact->id]),
                 'tags' => route('contact.profile_tags.store', ['vault' => $contact->vault_id, 'contact' => $contact->id]),

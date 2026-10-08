@@ -209,7 +209,7 @@ const toggleStyle = () => {
             {
               url: layoutData.vault.url.contacts,
               title: $t('Contacts'),
-              selected: $page.component.startsWith('Vault/Contact'),
+              selected: $page.component.startsWith('Vault/Contact') && $page.component !== 'Vault/Contact/Archived',
             },
             layoutData.vault.visibility.show_calendar_tab
               ? {
@@ -260,6 +260,11 @@ const toggleStyle = () => {
                   selected: $page.component.startsWith('Vault/Files'),
                 }
               : null,
+            {
+              url: layoutData.vault.url.archived_contacts,
+              title: $t('Archived'),
+              selected: $page.component === 'Vault/Contact/Archived',
+            },
             layoutData.vault.permission.at_least_editor
               ? {
                   url: layoutData.vault.url.settings,

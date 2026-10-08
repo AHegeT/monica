@@ -7,6 +7,7 @@ import Avatar from '@/Shared/Avatar.vue';
 import JetConfirmationModal from '@/Components/Jetstream/ConfirmationModal.vue';
 import JetDangerButton from '@/Components/Jetstream/DangerButton.vue';
 import JetSecondaryButton from '@/Components/Jetstream/SecondaryButton.vue';
+import ContactSelector from '@/Shared/Form/ContactSelector.vue';
 
 const props = defineProps({
   layoutData: Object,
@@ -14,9 +15,36 @@ const props = defineProps({
 });
 
 const deletingGroup = ref(false);
+const selectedContacts = ref([]);
+const addingContacts = ref(false);
+const addContactsError = ref('');
 const deleteGroupForm = reactive({
   processing: false,
 });
+
+const addContacts = () => {
+  if (selectedContacts.value.length === 0 || addingContacts.value) {
+    return;
+  }
+
+  addingContacts.value = true;
+  addContactsError.value = '';
+  axios
+    .post(props.data.url.add_contacts, {
+      contact_ids: selectedContacts.value.map((contact) => contact.id),
+    })
+    .then(() => {
+      selectedContacts.value = [];
+      localStorage.success = trans('Contacts added to group');
+      router.reload({ preserveScroll: true });
+    })
+    .catch((error) => {
+      addContactsError.value = error.response?.data?.message || trans('Something went wrong');
+    })
+    .finally(() => {
+      addingContacts.value = false;
+    });
+};
 
 const destroy = () => {
   deleteGroupForm.processing = true;
@@ -126,6 +154,29 @@ const destroy = () => {
             </ul>
           </div>
         </div>
+
+        <section
+          v-if="layoutData.vault.permission.at_least_editor"
+          class="mb-8 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
+          <h2 class="mb-3 text-lg font-semibold">{{ $t('Add contacts to this group') }}</h2>
+          <ContactSelector
+            v-model="selectedContacts"
+            :add-multiple-contacts="true"
+            :excluded-ids="data.contact_ids"
+            :search-url="layoutData.vault.url.search_contacts_only"
+            :label="$t('Search contacts')"
+            :required="true" />
+          <button
+            type="button"
+            class="mt-3 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            :disabled="selectedContacts.length === 0 || addingContacts"
+            @click="addContacts">
+            {{ addingContacts ? $t('Adding…') : $t('Add selected contacts') }}
+          </button>
+          <p v-if="addContactsError" class="mt-2 text-sm text-red-600" role="alert">
+            {{ addContactsError }}
+          </p>
+        </section>
 
         <!-- contacts by roles -->
         <div v-for="role in data.roles" :key="role.id" class="mb-8">

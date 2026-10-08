@@ -27,6 +27,10 @@ const props = defineProps({
   required: Boolean,
   displayMostConsultedContacts: Boolean,
   addMultipleContacts: Boolean,
+  excludedIds: {
+    type: Array,
+    default: () => [],
+  },
   searchUrl: String,
   mostConsultedContactsUrl: String,
 });
@@ -117,8 +121,10 @@ const search = _.debounce(() => {
     axios
       .post(props.searchUrl, form)
       .then((response) => {
-        searchResults.value = _.filter(response.data.data, (contact) =>
-          _.every(localContacts.value, (e) => contact.id !== e.id),
+        searchResults.value = _.filter(
+          response.data.data,
+          (contact) =>
+            _.every(localContacts.value, (e) => contact.id !== e.id) && !props.excludedIds.includes(contact.id),
         );
         processingSearch.value = false;
       })

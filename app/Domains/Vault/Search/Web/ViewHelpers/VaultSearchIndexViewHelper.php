@@ -30,8 +30,10 @@ class VaultSearchIndexViewHelper
     private static function contacts(Vault $vault, string $term): Collection
     {
         /** @var Collection<int, Contact> */
-        $contact = Contact::search($term)
+        $contact = Contact::query()
+            ->active()
             ->where('vault_id', $vault->id)
+            ->nameMatches($term)
             ->get();
 
         return $contact->map(fn (Contact $contact) => [

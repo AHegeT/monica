@@ -21,7 +21,7 @@ class ContactLabelController extends Controller
         $contacts = Label::find($labelId)
             ->contacts()
             ->where('vault_id', $request->route()->parameter('vault'))
-            ->where('listed', true)
+            ->active()
             ->orderBy('created_at', 'asc')
             ->paginate(10);
 

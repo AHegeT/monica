@@ -1,5 +1,6 @@
 <script setup>
 import { router, useForm, Link } from '@inertiajs/vue3';
+import { ref, watch } from 'vue';
 import { trans } from 'laravel-vue-i18n';
 import Layout from '@/Layouts/Layout.vue';
 import PrettyLink from '@/Shared/Form/PrettyLink.vue';
@@ -16,6 +17,26 @@ const props = defineProps({
 const form = useForm({
   sort_order: props.data.user_contact_sort_order,
 });
+const searchTerm = ref(props.data.search_term || '');
+let searchTimeout;
+
+watch(
+  () => props.data.search_term,
+  (value) => {
+    searchTerm.value = value || '';
+  },
+);
+
+const filterContacts = () => {
+  window.clearTimeout(searchTimeout);
+  searchTimeout = window.setTimeout(() => {
+    router.get(
+      props.data.url.contact.index,
+      { search: searchTerm.value || undefined },
+      { preserveState: true, preserveScroll: true, replace: true },
+    );
+  }, 300);
+};
 
 const update = () => {
   axios.put(props.data.url.sort.update, form).then((response) => {
@@ -88,6 +109,16 @@ const update = () => {
               </div>
             </div>
 
+            <label class="mb-4 block">
+              <span class="sr-only">{{ $t('Search contacts by name') }}</span>
+              <input
+                v-model="searchTerm"
+                type="search"
+                class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-xs focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900"
+                :placeholder="$t('Search contacts by name')"
+                @input="filterContacts" />
+            </label>
+
             <!-- contact list -->
             <ul
               class="contact-list mb-6 rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
@@ -102,6 +133,9 @@ const update = () => {
                 </Link>
               </li>
             </ul>
+            <p v-if="data.contacts.length === 0" class="mb-6 text-sm text-gray-500">
+              {{ searchTerm ? $t('No contacts match your search.') : $t('No contacts in this vault yet.') }}
+            </p>
 
             <!-- pagination -->
             <Pagination :items="paginator" />

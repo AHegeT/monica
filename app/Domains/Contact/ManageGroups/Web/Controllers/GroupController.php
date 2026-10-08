@@ -2,6 +2,7 @@
 
 namespace App\Domains\Contact\ManageGroups\Web\Controllers;
 
+use App\Domains\Contact\ManageGroups\Services\AddContactToGroup;
 use App\Domains\Contact\ManageGroups\Services\DestroyGroup;
 use App\Domains\Contact\ManageGroups\Services\UpdateGroup;
 use App\Domains\Contact\ManageGroups\Web\ViewHelpers\GroupEditViewHelper;
@@ -14,6 +15,7 @@ use App\Models\Vault;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -101,5 +103,38 @@ class GroupController extends Controller
                 'vault' => $vaultId,
             ]),
         ], 200);
+    }
+
+    public function addContacts(Request $request, string $vaultId, int $groupId): JsonResponse
+    {
+        Gate::authorize('vault-editor', $vaultId);
+
+        $validated = $request->validate([
+            'contact_ids' => ['required', 'array', 'min:1', 'max:50'],
+            'contact_ids.*' => ['required', 'uuid', 'distinct', 'exists:contacts,id'],
+        ]);
+
+        $vault = Vault::findOrFail($vaultId);
+        $group = $vault->groups()->findOrFail($groupId);
+        $contactIds = $validated['contact_ids'];
+
+        if ($vault->contacts()->whereIn('contacts.id', $contactIds)->count() !== count($contactIds)) {
+            abort(422, trans('One or more contacts do not belong to this vault.'));
+        }
+
+        DB::transaction(function () use ($contactIds, $vaultId, $groupId) {
+            foreach ($contactIds as $contactId) {
+                AddContactToGroup::dispatchSync([
+                    'account_id' => Auth::user()->account_id,
+                    'vault_id' => $vaultId,
+                    'author_id' => Auth::id(),
+                    'group_id' => $groupId,
+                    'contact_id' => $contactId,
+                    'group_type_role_id' => null,
+                ]);
+            }
+        });
+
+        return response()->json(['message' => trans('Contacts added to group')], 200);
     }
 }

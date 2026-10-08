@@ -24,7 +24,6 @@ use App\Domains\Contact\ManageGoals\Web\Controllers\ContactModuleStreakControlle
 use App\Domains\Contact\ManageGroups\Web\Controllers\ContactModuleGroupController;
 use App\Domains\Contact\ManageGroups\Web\Controllers\GroupController;
 use App\Domains\Contact\ManageJobInformation\Web\Controllers\ContactModuleJobInformationController;
-use App\Domains\Contact\ManageProfileDetails\Web\Controllers\ContactProfileDetailsController;
 use App\Domains\Contact\ManageLabels\Web\Controllers\ContactModuleLabelController;
 use App\Domains\Contact\ManageLifeEvents\Web\Controllers\ContactModuleLifeEventController;
 use App\Domains\Contact\ManageLifeEvents\Web\Controllers\ContactModuleTimelineEventController;
@@ -38,6 +37,7 @@ use App\Domains\Contact\ManageNotes\Web\Controllers\ContactNotesController;
 use App\Domains\Contact\ManagePets\Web\Controllers\ContactModulePetController;
 use App\Domains\Contact\ManagePhotos\Web\Controllers\ContactModulePhotoController;
 use App\Domains\Contact\ManagePhotos\Web\Controllers\ContactPhotoController;
+use App\Domains\Contact\ManageProfileDetails\Web\Controllers\ContactProfileDetailsController;
 use App\Domains\Contact\ManageQuickFacts\Web\Controllers\ContactQuickFactController;
 use App\Domains\Contact\ManageQuickFacts\Web\Controllers\ContactQuickFactToggleController;
 use App\Domains\Contact\ManageRelationships\Web\Controllers\ContactRelationshipsController;
@@ -241,6 +241,7 @@ Route::middleware([
             // vault contacts
             Route::prefix('contacts')->group(function () {
                 Route::get('', [ContactController::class, 'index'])->name('contact.index');
+                Route::get('archived', [ContactController::class, 'archived'])->name('contact.archived');
                 Route::get('labels/{label}', [ContactLabelController::class, 'index'])->name('contact.label.index');
                 Route::put('sort', [ContactSortController::class, 'update'])->name('contact.sort.update');
 
@@ -356,6 +357,7 @@ Route::middleware([
                     Route::get('relationships/create', [ContactRelationshipsController::class, 'create'])->name('contact.relationships.create');
                     Route::post('relationships', [ContactRelationshipsController::class, 'store'])->name('contact.relationships.store');
                     Route::put('relationships/{relationship}', [ContactRelationshipsController::class, 'update'])->name('contact.relationships.update');
+                    Route::put('relationships/{relationship}/closeness', [ContactRelationshipsController::class, 'updateCloseness'])->name('contact.relationships.closeness.update');
 
                     // pets
                     Route::post('pets', [ContactModulePetController::class, 'store'])->name('contact.pet.store');
@@ -407,6 +409,7 @@ Route::middleware([
             Route::get('groups', [GroupController::class, 'index'])->name('group.index');
             Route::middleware('can:group-owner,vault,group')->prefix('groups')->group(function () {
                 Route::get('{group}', [GroupController::class, 'show'])->name('group.show');
+                Route::post('{group}/contacts', [GroupController::class, 'addContacts'])->name('group.contacts.store');
                 Route::get('{group}/edit', [GroupController::class, 'edit'])->name('group.edit');
                 Route::put('{group}', [GroupController::class, 'update'])->name('group.update');
                 Route::delete('{group}', [GroupController::class, 'destroy'])->name('group.destroy');

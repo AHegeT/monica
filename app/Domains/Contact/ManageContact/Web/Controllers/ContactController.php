@@ -28,7 +28,12 @@ class ContactController extends Controller
     public function index(Request $request, Vault $vault)
     {
         $contacts = $vault->contacts()
-            ->where('listed', true);
+            ->active();
+
+        $searchTerm = trim((string) $request->input('search', ''));
+        if ($searchTerm !== '') {
+            $contacts->nameMatches($searchTerm);
+        }
 
         $column_to_order = preg_replace('/^%([a-z_]+)%.*$/', '$1', Auth::user()->name_order);
 
@@ -43,9 +48,23 @@ class ContactController extends Controller
                 $contacts = $contacts->orderBy('last_updated_at', 'desc');
                 break;
         }
-        $contacts = $contacts->paginate(25);
+        $contacts = $contacts->paginate(25)->withQueryString();
 
         return Inertia::render('Vault/Contact/Index', [
+            'layoutData' => VaultIndexViewHelper::layoutData($vault),
+            'data' => ContactIndexViewHelper::data($contacts, $vault, null, Auth::user(), $searchTerm),
+            'paginator' => PaginatorHelper::getData($contacts),
+        ]);
+    }
+
+    public function archived(Request $request, Vault $vault)
+    {
+        $contacts = $vault->contacts()
+            ->where('listed', false)
+            ->orderBy('last_updated_at', 'desc')
+            ->paginate(25);
+
+        return Inertia::render('Vault/Contact/Archived', [
             'layoutData' => VaultIndexViewHelper::layoutData($vault),
             'data' => ContactIndexViewHelper::data($contacts, $vault, null, Auth::user()),
             'paginator' => PaginatorHelper::getData($contacts),

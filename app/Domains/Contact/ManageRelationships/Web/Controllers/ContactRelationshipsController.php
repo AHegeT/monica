@@ -14,6 +14,7 @@ use App\Models\Vault;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class ContactRelationshipsController extends Controller
@@ -69,6 +70,7 @@ class ContactRelationshipsController extends Controller
             'author_id' => Auth::id(),
             'vault_id' => $vaultId,
             'relationship_type_id' => $request->input('relationship_type_id'),
+            'closeness_level' => $request->input('closeness_level'),
             'contact_id' => $request->input('base_contact_id') === $contactId ? $contactId : $otherContactId,
             'other_contact_id' => $request->input('base_contact_id') === $contactId ? $otherContactId : $contactId,
         ]);
@@ -98,6 +100,29 @@ class ContactRelationshipsController extends Controller
 
         return response()->json([
             'data' => ModuleRelationshipViewHelper::data($contact, Auth::user()),
+        ], 200);
+    }
+
+    public function updateCloseness(Request $request, string $vaultId, string $contactId, int $relationshipId)
+    {
+        Gate::authorize('vault-editor', $vaultId);
+
+        $data = $request->validate([
+            'closeness_level' => ['nullable', 'integer', 'between:1,3'],
+        ]);
+
+        $relationship = DB::table('relationships')
+            ->where('id', $relationshipId)
+            ->where(function ($query) use ($contactId) {
+                $query->where('contact_id', $contactId)
+                    ->orWhere('related_contact_id', $contactId);
+            });
+
+        abort_unless($relationship->exists(), 404);
+        $relationship->update(['closeness_level' => $data['closeness_level'] ?? null]);
+
+        return response()->json([
+            'data' => ['closeness_level' => $data['closeness_level'] ?? null],
         ], 200);
     }
 }
