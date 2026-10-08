@@ -7,7 +7,19 @@
 
         <span class="font-semibold"> {{ $t('Relationships') }} </span>
       </div>
-      <pretty-link :text="$t('Add a relationship')" :icon="'plus'" :href="data.url.create" :class="'w-full sm:w-fit'" />
+      <div class="flex flex-col gap-2 sm:flex-row">
+        <InertiaLink
+          :href="data.url.family_tree"
+          class="flex items-center justify-center gap-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-slate-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-slate-800">
+          <Network class="h-4 w-4" />
+          {{ $t('Explore family tree') }}
+        </InertiaLink>
+        <pretty-link
+          :text="$t('Add a relationship')"
+          :icon="'plus'"
+          :href="data.url.create"
+          :class="'w-full sm:w-fit'" />
+      </div>
     </div>
 
     <!-- relationships -->
@@ -133,7 +145,7 @@
 import { Link } from '@inertiajs/vue3';
 import PrettyLink from '@/Shared/Form/PrettyLink.vue';
 import Avatar from '@/Shared/Avatar.vue';
-import { ContactRound, UsersRound } from 'lucide-vue-next';
+import { ContactRound, Network, UsersRound } from 'lucide-vue-next';
 
 export default {
   components: {
@@ -141,6 +153,7 @@ export default {
     PrettyLink,
     Avatar,
     ContactRound,
+    Network,
     UsersRound,
   },
 

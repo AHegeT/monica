@@ -102,6 +102,10 @@ class ModuleRelationshipViewHelper
                     'vault' => $contact->vault->id,
                     'contact' => $contact->id,
                 ]),
+                'family_tree' => route('contact.family_tree.show', [
+                    'vault' => $contact->vault->id,
+                    'contact' => $contact->id,
+                ]),
             ],
         ];
     }

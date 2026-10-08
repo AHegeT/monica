@@ -40,6 +40,7 @@ use App\Domains\Contact\ManagePhotos\Web\Controllers\ContactPhotoController;
 use App\Domains\Contact\ManageProfileDetails\Web\Controllers\ContactProfileDetailsController;
 use App\Domains\Contact\ManageQuickFacts\Web\Controllers\ContactQuickFactController;
 use App\Domains\Contact\ManageQuickFacts\Web\Controllers\ContactQuickFactToggleController;
+use App\Domains\Contact\ManageRelationships\Web\Controllers\ContactFamilyTreeController;
 use App\Domains\Contact\ManageRelationships\Web\Controllers\ContactRelationshipsController;
 use App\Domains\Contact\ManageReligion\Web\Controllers\ContactModuleReligionController;
 use App\Domains\Contact\ManageReminders\Web\Controllers\ContactModuleReminderController;
@@ -355,6 +356,7 @@ Route::middleware([
                     Route::put('religion', [ContactModuleReligionController::class, 'update'])->name('contact.religion.update');
 
                     // relationships
+                    Route::get('family-tree', [ContactFamilyTreeController::class, 'show'])->name('contact.family_tree.show');
                     Route::get('relationships/create', [ContactRelationshipsController::class, 'create'])->name('contact.relationships.create');
                     Route::post('relationships', [ContactRelationshipsController::class, 'store'])->name('contact.relationships.store');
                     Route::put('relationships/{relationship}', [ContactRelationshipsController::class, 'update'])->name('contact.relationships.update');
