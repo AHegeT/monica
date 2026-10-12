@@ -1,0 +1,28 @@
+services:
+  fieldwork:
+    image: ${FIELDWORK_IMAGE:-fieldwork:local}
+    build: .
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4178:4178'
+    environment:
+      FIELDWORK_AUTH_MODE: password
+      FIELDWORK_ORIGIN: ${FIELDWORK_ORIGIN:?Set your public HTTPS CRM URL}
+      FIELDWORK_PASSWORD: ${FIELDWORK_PASSWORD:-}
+      FIELDWORK_SECURE_COOKIE: 'true'
+      FIELDWORK_TIMEZONE: America/Mexico_City
+    volumes:
+      - fieldwork-data:/app/.data
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "const h=require('node:http');const r=h.get({host:'127.0.0.1',port:4178,path:'/health',headers:{Host:new URL(process.env.FIELDWORK_ORIGIN).host}},s=>process.exit(s.statusCode===200?0:1));r.on('error',()=>process.exit(1));r.setTimeout(3000,()=>{r.destroy();process.exit(1)})",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+volumes:
+  fieldwork-data:

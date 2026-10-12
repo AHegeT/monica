@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#243c31" />
+    <title>Fieldwork · CRM</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <aside class="sidebar">
+      <a class="brand" href="#pipeline"><span class="brand-mark">f.</span> Fieldwork</a>
+      <div class="workspace">
+        <span class="avatar">AH</span>
+        <div>My workspace<small>Professional relationships</small></div>
+      </div>
+      <div class="nav-label">WORKSPACE</div>
+      <nav aria-label="Main navigation">
+        <button data-view="today"><span>◷</span> Next actions <span class="nav-count" id="due-count"></span></button>
+        <button data-view="pipeline"><span>▥</span> Pipeline</button>
+        <button data-view="people"><span>♧</span> People</button>
+        <button data-view="companies"><span>▤</span> Companies</button>
+        <button data-view="research"><span>⌕</span> Research</button>
+        <button data-view="sequences"><span>⇢</span> Sequences</button>
+        <button data-view="access"><span>⚙</span> Agent access</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="local-dot">Server workspace</div>
+        <p>Records are saved to your private CRM database.</p>
+        <button class="text-button" id="export">↓ Export workspace</button>
+      </div>
+    </aside>
+    <main>
+      <header class="topbar">
+        <span>My workspace <span class="slash">/</span> <span id="breadcrumb">Pipeline</span></span
+        ><span class="local-badge">FIELDWORK CRM</span>
+      </header>
+      <section class="page-heading">
+        <div>
+          <div class="eyebrow" id="eyebrow">BUILD RELATIONSHIPS, WITH INTENTION</div>
+          <h1 id="page-title">Your pipeline</h1>
+          <p id="page-description"></p>
+        </div>
+        <button class="primary" id="add-person">＋ Add prospect</button>
+      </section>
+      <div id="content"></div>
+      <footer>Fieldwork <span>•</span> Professional relationships, with context.</footer>
+    </main>
+    <dialog id="editor" aria-labelledby="dialog-title"><div id="editor-content"></div></dialog>
+    <div id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>

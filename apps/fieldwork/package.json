@@ -1,0 +1,21 @@
+{
+  "name": "fieldwork-crm",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server/index.js",
+    "dev": "node --watch --env-file-if-exists=.env server/index.js",
+    "test": "node --test test/*.test.js",
+    "mcp": "node --env-file-if-exists=.env server/mcp.js",
+    "backup": "node --env-file-if-exists=.env server/admin.js backup",
+    "agent-token": "node --env-file-if-exists=.env server/admin.js token"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "ajv": "^8.0.0"
+  }
+}

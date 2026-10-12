@@ -1,0 +1,9 @@
+# Replace the path. Store FIELDWORK_API_TOKEN in Hermes' private environment.
+mcp_servers:
+  fieldwork:
+    command: node
+    args:
+      - /absolute/path/apps/fieldwork/server/mcp.js
+    env:
+      FIELDWORK_API_URL: http://localhost:4178
+      FIELDWORK_API_TOKEN: '${FIELDWORK_API_TOKEN}'
