@@ -8,6 +8,10 @@ use App\Helpers\CollectionHelper;
 use App\Http\Controllers\Profile\WebauthnDestroyResponse;
 use App\Http\Controllers\Profile\WebauthnUpdateResponse;
 use App\Models\User;
+use Cose\Algorithm\ManagerFactory as CoseAlgorithmManagerFactory;
+use Cose\Algorithm\Signature\ECDSA;
+use Cose\Algorithm\Signature\EdDSA;
+use Cose\Algorithm\Signature\RSA;
 use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Schema\Builder;
@@ -129,6 +133,40 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        // The upstream Laravel WebAuthn provider registers algorithms that this
+        // application does not allow. Some emit warnings on recent cose-lib.
+        // Register only the algorithms selected in config/webauthn.php.
+        $this->app->bind(
+            CoseAlgorithmManagerFactory::class,
+            fn ($app) => tap(new CoseAlgorithmManagerFactory, function ($factory) use ($app) {
+                $algorithms = [
+                    (string) RSA\RS256::identifier() => RSA\RS256::class,
+                    (string) RSA\RS384::identifier() => RSA\RS384::class,
+                    (string) RSA\RS512::identifier() => RSA\RS512::class,
+                    (string) RSA\PS256::identifier() => RSA\PS256::class,
+                    (string) RSA\PS384::identifier() => RSA\PS384::class,
+                    (string) RSA\PS512::identifier() => RSA\PS512::class,
+                    (string) ECDSA\ES256::identifier() => ECDSA\ES256::class,
+                    (string) ECDSA\ES256K::identifier() => ECDSA\ES256K::class,
+                    (string) ECDSA\ES384::identifier() => ECDSA\ES384::class,
+                    (string) ECDSA\ES512::identifier() => ECDSA\ES512::class,
+                    (string) EdDSA\EdDSA::identifier() => EdDSA\EdDSA::class,
+                ];
+
+                $configuredAlgorithms = array_map(
+                    'strval',
+                    $app['config']->get('webauthn.public_key_credential_parameters', [])
+                );
+
+                foreach ($configuredAlgorithms as $identifier) {
+                    if (isset($algorithms[$identifier])) {
+                        $algorithm = $algorithms[$identifier];
+                        $factory->add($identifier, new $algorithm);
+                    }
+                }
+            })
+        );
+
         if (Config::get('app.force_url') === true) {
             URL::forceRootUrl(Str::of(config('app.url'))->ltrim('/'));
             URL::forceScheme('https');
