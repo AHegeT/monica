@@ -7,7 +7,7 @@
 ###
 
 ## Build assets
-FROM node:22 AS yarn
+FROM node:22.23.4 AS yarn
 
 WORKDIR /var/www/html
 COPY . ./
@@ -18,7 +18,7 @@ RUN set -ex; \
 
 
 ## Image
-FROM php:8.3-apache
+FROM php:8.3.36-apache
 
 # entrypoint.sh dependencies
 RUN set -ex; \
